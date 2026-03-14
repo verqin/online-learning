@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { AdminPricingEditor } from "@/components/admin-pricing-editor"
 import {
   BookOpen,
   Users,
@@ -43,6 +44,7 @@ export default function AdminPage() {
   const [selectedCourse, setSelectedCourse] = useState("")
   const [selectedLevel, setSelectedLevel] = useState("")
   const [storageWarning, setStorageWarning] = useState(false)
+  const [showPricingEditor, setShowPricingEditor] = useState(false)
 
   // Advanced Statistics
   const stats = {
@@ -411,6 +413,15 @@ export default function AdminPage() {
                         <BarChart3 className="w-4 h-4 mr-2" />
                         View Analytics
                       </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full justify-start" 
+                        onClick={() => setShowPricingEditor(true)}
+                      >
+                        <DollarSign className="w-4 h-4 mr-2" />
+                        Edit Pricing
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -662,6 +673,9 @@ export default function AdminPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Pricing Editor Modal */}
+        <AdminPricingEditor isOpen={showPricingEditor} onClose={() => setShowPricingEditor(false)} />
       </div>
     </div>
   )

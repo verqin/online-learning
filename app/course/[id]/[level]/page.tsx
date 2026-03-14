@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CourseLearningModule } from "@/components/course-learning-module"
 import { CourseFeedback } from "@/components/course-feedback"
+import { CertificateRequestModal } from "@/components/certificate-request-modal"
 import {
   BookOpen,
   ArrowLeft,
@@ -27,7 +28,9 @@ export default function CoursePage({ params }: { params: { id: string; level: st
   const [showPayment, setShowPayment] = useState(false)
   const [isEnrolled, setIsEnrolled] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
+  const [showCertificateModal, setShowCertificateModal] = useState(false)
   const [completedModules, setCompletedModules] = useState<string[]>([])
+  const [courseScore, setCourseScore] = useState(92) // Mock score
 
   const course = courseCatalog.find((c) => c.id === params.id)
   const level = params.level as "certificate" | "diploma"
@@ -36,6 +39,33 @@ export default function CoursePage({ params }: { params: { id: string; level: st
   const moduleCount = isCertificate ? "5-6" : "8-10"
   const duration = isCertificate ? "4-6 weeks" : "8-12 weeks"
   const title = isCertificate ? course?.certificateTitle : course?.diplomaTitle
+
+  const handleCertificateRequest = async (selectedLevel: "certificate" | "diploma") => {
+    try {
+      const response = await fetch(`/api/request-${selectedLevel}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: "user-123", // Mock user ID
+          courseId: params.id,
+          courseName: title,
+          score: courseScore,
+          userName: "Student Name", // Mock user name
+          phoneNumber: "+1234567890", // Mock phone
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to request certificate")
+      }
+
+      const data = await response.json()
+      console.log("[Certificate Requested]", data)
+    } catch (error) {
+      console.error("[Certificate Error]", error)
+      throw error
+    }
+  }
 
   if (!course) {
     return <div>Course not found</div>
@@ -352,11 +382,23 @@ export default function CoursePage({ params }: { params: { id: string; level: st
                     courseName={title || course.certificateTitle}
                     onSubmit={() => {
                       setShowFeedback(false)
-                      // Show completion message
+                      // Show certificate request option after feedback
+                      setTimeout(() => setShowCertificateModal(true), 500)
                     }}
                   />
                 </div>
               )}
+
+              {/* Certificate Request Modal */}
+              <CertificateRequestModal
+                isOpen={showCertificateModal}
+                courseName={title || course.certificateTitle}
+                level={level}
+                score={courseScore}
+                price={price}
+                onClose={() => setShowCertificateModal(false)}
+                onConfirm={handleCertificateRequest}
+              />
             </div>
           )}
         </div>

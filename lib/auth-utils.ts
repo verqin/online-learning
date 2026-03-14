@@ -2,8 +2,9 @@ import { createClient } from "@/lib/supabase/client";
 
 const ADMIN_EMAILS = ["africanedusanna@gmail.com"];
 const ADMIN_PASSWORD = "admin#1";
-const SECRET_CODE_1 = "Edusanna#1";
-const SECRET_CODE_2 = "ES1";
+// Secret codes for admin access (hidden in environment for production)
+const SECRET_CODE_1 = process.env.NEXT_PUBLIC_ADMIN_CODE_1 || "Activate";
+const SECRET_CODE_2 = process.env.NEXT_PUBLIC_ADMIN_CODE_2 || "Bankai";
 
 export async function authenticateAdmin(email: string, password: string) {
   if (email === "africanedusanna@gmail.com" && password === "admin#1") {
