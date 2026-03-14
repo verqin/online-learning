@@ -1,0 +1,128 @@
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { BookOpen, ArrowLeft, Mail, Lock } from "lucide-react"
+
+export default function LoginPage() {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  })
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    // Check for admin credentials
+    if (formData.email === "africanedusanna@gmail.com" && formData.password === "admin#1") {
+      localStorage.setItem("isAdmin", "true")
+      localStorage.setItem("adminEmail", formData.email)
+      window.location.href = "/admin"
+      return
+    }
+
+    // Store user session for regular users
+    localStorage.setItem("isLoggedIn", "true")
+    localStorage.setItem("userEmail", formData.email)
+
+    // Simulate API call for regular users
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+
+    // Redirect to dashboard
+    window.location.href = "/dashboard"
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }))
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-flex items-center text-purple-600 hover:text-purple-700 mb-4">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Link>
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl flex items-center justify-center">
+              <BookOpen className="w-7 h-7 text-white" />
+            </div>
+            <span className="text-3xl font-bold gradient-text">EDUSANNA</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome Back</h1>
+          <p className="text-gray-600">Continue your learning journey</p>
+        </div>
+
+        {/* Login Form */}
+        <Card className="glass-card border-0 shadow-2xl">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-xl gradient-text">Sign In to Your Account</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <Label htmlFor="email" className="flex items-center text-gray-700 mb-2">
+                  <Mail className="w-4 h-4 mr-2" />
+                  Email Address
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="h-12 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                  placeholder="Enter your email"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="password" className="flex items-center text-gray-700 mb-2">
+                  <Lock className="w-4 h-4 mr-2" />
+                  Password
+                </Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="h-12 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                  placeholder="Enter your password"
+                />
+              </div>
+
+              <Button type="submit" disabled={isLoading} className="w-full premium-button h-12 text-lg">
+                {isLoading ? "Signing In..." : "Sign In"}
+              </Button>
+            </form>
+
+            <div className="text-center mt-6">
+              <p className="text-gray-600">
+                Don't have an account?{" "}
+                <Link href="/signup" className="text-purple-600 hover:text-purple-700 font-semibold">
+                  Create Account
+                </Link>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
