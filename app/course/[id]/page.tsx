@@ -88,8 +88,12 @@ export default function CoursePage({ params }: { params: { id: string } }) {
               <span>Back to Courses</span>
             </Link>
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 rounded-full overflow-hidden shadow-lg border-2 border-blue-600">
+                <img
+                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%20Jan%2022%2C%202026%2C%2012_21_21%20AM-WKqkdSRv1DtoghNmzkCDSdNQKXoMsG.png"
+                  alt="Edusanna Logo"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <span className="text-2xl font-bold gradient-text">EDUSANNA</span>
             </Link>
