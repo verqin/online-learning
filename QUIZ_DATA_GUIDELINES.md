@@ -47,10 +47,11 @@ interface QuizQuestion {
 ### 5. Explanation Field
 - **MUST be a string** enclosed in double quotes
 - **MUST NOT contain unescaped quotes**
-- Replace internal quotes with apostrophes or escape them properly
+- Replace internal quotes with apostrophes or remove them entirely
 - ❌ Bad: `explanation: "The rule requires "say-on-pay" votes."`
 - ✅ Good: `explanation: "The rule requires say-on-pay votes."`
 - ✅ Good: `explanation: "The rule requires 'say-on-pay' votes."` (apostrophes)
+- ✅ Good: `explanation: "The rule requires say-on-pay shareholder votes."` (recommended)
 
 ### 6. Hyphens and Special Characters
 - Hyphens in proper nouns are safe when properly quoted:
@@ -70,6 +71,39 @@ interface QuizQuestion {
 - ✅ `{ ... },` (not last item)
 - ✅ `{ ... }` (last item)
 - ❌ `{ ... }` (missing comma between items)
+
+## Quote Handling Strategy
+
+### Prevention: Use Single Quotes for Outer Strings (PREFERRED)
+The best practice is to use **single quotes for outer strings** when the content contains natural language double quotes:
+
+```typescript
+// ✅ BEST PRACTICE - Single quotes for outer, double quotes inside if needed
+explanation: 'The Dodd-Frank Act requires "say-on-pay" shareholder votes.'
+question: 'What does "RACI" mean in project management?'
+```
+
+This eliminates the risk of unescaped quote conflicts entirely.
+
+### Alternative: Remove or Replace Inner Quotes
+If you must use double quotes:
+
+```typescript
+// ✅ Alternative - Remove the inner quotes
+explanation: "The Dodd-Frank Act requires say-on-pay shareholder votes."
+
+// ✅ Alternative - Use apostrophes for inner quotes
+explanation: "The rule requires 'say-on-pay' votes."
+```
+
+### What NOT to Do
+```typescript
+// ❌ NEVER - Unescaped nested double quotes
+explanation: "The rule requires "say-on-pay" votes."
+
+// ❌ NEVER - Improperly escaped quotes
+explanation: "The rule requires \"say-on-pay\" votes."  (breaks TypeScript parsing)
+```
 
 ## Validation
 

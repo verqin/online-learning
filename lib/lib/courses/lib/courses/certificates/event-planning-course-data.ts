@@ -3462,7 +3462,7 @@ Successful event execution combines meticulous preparation with flexible problem
             "Only avoiding similar events"
           ],
           correctAnswer: 1,
-          explanation: "Document problems and solutions to create "lessons learned" that improve future event planning."
+          explanation: "Document problems and solutions to create lessons learned that improve future event planning."
         }
       ]
     }
