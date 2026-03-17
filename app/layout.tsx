@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
+import { AuthSessionProvider } from "@/components/providers/session-provider"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -47,7 +48,9 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192.jpg" />
       </head>
       <body className={inter.className}>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-gray-50 to-slate-100">{children}</div>
+        <AuthSessionProvider>
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-gray-50 to-slate-100">{children}</div>
+        </AuthSessionProvider>
       </body>
     </html>
   )
