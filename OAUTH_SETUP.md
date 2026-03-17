@@ -1,6 +1,6 @@
 # OAuth Setup Guide
 
-This guide explains how to set up Google and Apple OAuth for the Edusanna online learning platform.
+This guide explains how to set up Google OAuth for the Edusanna online learning platform.
 
 ## Google OAuth Setup
 
@@ -57,22 +57,6 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 Run this command to generate a secure secret:
 ```bash
 openssl rand -base64 32
-```
-
-## Apple OAuth Setup (Future)
-
-When ready to add Apple Sign-In:
-
-1. Enroll in [Apple Developer Program](https://developer.apple.com/programs/)
-2. Create a Service ID in [Certificates, Identifiers & Profiles](https://developer.apple.com/account/resources/)
-3. Configure Sign in with Apple for your Service ID
-4. Create a private key for authentication
-5. Add the following environment variables:
-```
-APPLE_ID=your-apple-id
-APPLE_TEAM_ID=your-team-id
-APPLE_KEY_ID=your-key-id
-APPLE_PRIVATE_KEY=your-private-key
 ```
 
 ## Testing OAuth Locally
