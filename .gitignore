@@ -26,5 +26,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# lock files - regenerated per environment
-pnpm-lock.yaml
+# lock files - allow npm-lock.json for dependency tracking
+# pnpm-lock.yaml excluded to use npm exclusively
+
