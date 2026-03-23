@@ -134,7 +134,7 @@ export default function CoursesPage() {
           <div className="glass-card p-4 rounded-xl border-gray-200">
             <div className="flex items-center gap-2 mb-3">
               <Filter className="w-5 h-5 text-blue-600" />
-              <span className="font-semibold text-gray-700">Filter by Category:</span>
+              <span className="font-semibold text-white-700">Filter by Category:</span>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button
