@@ -121,7 +121,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
             <div className="inline-flex items-center px-6 py-3 rounded-full glass-card-dark text-blue-300 text-sm font-bold shadow-xl mb-8 border-blue-300/20">
-              ✨ Free Learning - Certificate & Diploma Programs A-Z
+               Free Learning - Certificate & Diploma Programs A-Z
             </div>
 
             <h1 className="text-5xl md:text-8xl font-black mb-8 text-balance mt-8 leading-tight">
