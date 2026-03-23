@@ -241,7 +241,7 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold gradient-text mb-4">How It Works</h2>
-            <p className="text-xl text-gray-600">Simple, transparent, and student-focused</p>
+            <p className="text-xl text-white-600">Simple, transparent and student-focused</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -250,7 +250,7 @@ export default function HomePage() {
                 1
               </div>
               <h3 className="text-xl font-semibold mb-3 text-gray-800">Sign Up Free</h3>
-              <p className="text-gray-600">
+              <p className="text-white-600">
                 Create your account in seconds. No credit card required. Access all courses immediately.
               </p>
             </div>
@@ -260,7 +260,7 @@ export default function HomePage() {
                 2
               </div>
               <h3 className="text-xl font-semibold mb-3 text-gray-800">Learn & Progress</h3>
-              <p className="text-gray-600">
+              <p className="text-white-600">
                 Study as many courses as you want. Your progress is automatically saved across all devices.
               </p>
             </div>
@@ -270,7 +270,7 @@ export default function HomePage() {
                 3
               </div>
               <h3 className="text-xl font-semibold mb-3 text-gray-800">Get Certified</h3>
-              <p className="text-gray-600">
+              <p className="text-white-600">
                 When ready, purchase your Certificate ($12) or Diploma ($18) to prove your achievement.
               </p>
             </div>
