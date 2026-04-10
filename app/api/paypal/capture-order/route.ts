@@ -3,7 +3,8 @@ import { storePaymentRecord, generateCertificateId, checkDuplicatePayment } from
 import { sendWhatsAppNotification } from '@/lib/whatsapp-service';
 import { createClient } from '@supabase/supabase-js';
 
-const PAYPAL_API_BASE = 'https://api.sandbox.paypal.com';
+// Use production API - change to sandbox for testing
+const PAYPAL_API_BASE = process.env.PAYPAL_API_BASE || 'https://api.paypal.com';
 const CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 const SECRET = process.env.PAYPAL_SECRET;
 

@@ -44,10 +44,20 @@ export async function sendWhatsAppMessage(
     }
 
     // Build API request
+    const apiKey = process.env.CALLMEBOT_API_KEY;
+    
+    if (!apiKey) {
+      console.warn('[WhatsApp] CallMeBot API key not configured');
+      return {
+        success: false,
+        message: 'CallMeBot API key not configured',
+      };
+    }
+
     const params = new URLSearchParams({
       phone: phoneNumber,
       text: message,
-      apikey: process.env.CALLMEBOT_API_KEY || 'test', // Test key for development
+      apikey: apiKey,
     });
 
     const response = await fetch(`${CALLMEBOT_API_URL}?${params}`, {
