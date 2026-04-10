@@ -140,3 +140,23 @@ export async function sendCourseUpdateNotification(
 
   return sendWhatsAppMessage(phoneNumber, message);
 }
+
+/**
+ * Sends admin notification for new payment
+ */
+export async function sendWhatsAppNotification(
+  message: string,
+): Promise<WhatsAppResponse> {
+  const adminPhone = process.env.ADMIN_WHATSAPP_PHONE;
+  
+  if (!adminPhone) {
+    console.warn('[WhatsApp] Admin phone number not configured');
+    return {
+      success: false,
+      message: 'Admin phone number not configured',
+    };
+  }
+
+  const fullMessage = `🔔 NEW PAYMENT ALERT\n\n${message}\n\n👉 Check admin dashboard to verify and process.`;
+  return sendWhatsAppMessage(adminPhone, fullMessage);
+}
