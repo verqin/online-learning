@@ -97,6 +97,8 @@ const config: Config = {
     'hover:shadow-3xl',
     'shadow-3xl',
     'glass-card-light',
+    'premium-bg',
+    'premium-container',
   ],
 
   plugins: [require('tailwindcss-animate')],

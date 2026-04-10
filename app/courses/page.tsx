@@ -26,9 +26,9 @@ export default function CoursesPage() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+    <div className="min-h-screen premium-bg">
       {/* Navigation */}
-      <nav className="glass-card fixed top-0 w-full z-50 border-b border-blue-300/20 backdrop-blur-3xl">
+      <nav className="fixed top-0 w-full z-50 backdrop-blur-2xl bg-white/5 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-6">
