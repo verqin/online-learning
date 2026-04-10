@@ -63,9 +63,9 @@ export default function CourseLearnPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen premium-bg">
       {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <nav className="backdrop-blur-2xl bg-white/5 border-b border-white/10 sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <Link href="/courses" className="flex items-center gap-2 hover:opacity-80">

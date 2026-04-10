@@ -66,23 +66,9 @@ export default function HomePage() {
         onClose={closePrompt}
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-slate-900 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-glow"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-glow" style={{ animationDelay: "1s" }}></div>
-          <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-glow" style={{ animationDelay: "2s" }}></div>
-        </div>
-
-        {/* Particle effect overlay */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 right-20 w-2 h-2 bg-white rounded-full animate-pulse"></div>
-          <div className="absolute top-40 right-40 w-1 h-1 bg-purple-300 rounded-full animate-pulse" style={{ animationDelay: "0.5s" }}></div>
-          <div className="absolute bottom-32 left-1/4 w-2 h-2 bg-blue-300 rounded-full animate-pulse" style={{ animationDelay: "1s" }}></div>
-          <div className="absolute bottom-20 right-1/3 w-1.5 h-1.5 bg-white rounded-full animate-pulse" style={{ animationDelay: "1.5s" }}></div>
-        </div>
+      <div className="min-h-screen relative overflow-hidden">
         {/* Navigation */}
-        <nav className="glass-card fixed top-0 w-full z-50 border-b border-white/10 backdrop-blur-3xl">
+        <nav className="fixed top-0 w-full z-50 backdrop-blur-2xl bg-white/5 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-20 relative z-10">
               <button
@@ -120,17 +106,17 @@ export default function HomePage() {
         <section className="pt-40 pb-24 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
-            <div className="inline-flex items-center px-6 py-3 rounded-full glass-card-dark text-blue-300 text-sm font-bold shadow-xl mb-8 border-blue-300/20">
+            <div className="inline-flex items-center px-6 py-3 rounded-full backdrop-blur-xl bg-white/10 text-slate-100 text-sm font-bold shadow-xl mb-8 border-white/20">
                Free Learning - Certificate & Diploma Programs A-Z
             </div>
 
             <h1 className="text-5xl md:text-8xl font-black mb-8 text-balance mt-8 leading-tight">
-              <span className="gradient-text-alt">Learn Anything.</span>
+              <span className="text-slate-900">Learn Anything.</span>
               <br />
-              <span className="text-white">Completely Free.</span>
+              <span className="text-slate-700">Completely Free.</span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-blue-100 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
+            <p className="text-xl md:text-2xl text-slate-700 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
               Create a free account and access all courses instantly. Learn at your own pace completely for free, track your progress and only pay when you're ready to receive an official, prestigious Certificate ($12) or Diploma ($18).
             </p>
 
@@ -237,40 +223,40 @@ export default function HomePage() {
         </section>
 
           {/* How It Works */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <section className="py-20 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold gradient-text mb-4">How It Works</h2>
-            <p className="text-xl text-white-600">Simple, transparent and student-focused</p>
+            <h2 className="text-4xl font-bold text-slate-900 mb-4">How It Works</h2>
+            <p className="text-xl text-slate-700">Simple, transparent and student-focused</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-green-600">
+            <div className="text-center backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/20">
+              <div className="w-16 h-16 bg-gradient-to-br from-emerald-400/40 to-emerald-600/40 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-emerald-700">
                 1
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-800">Sign Up Free</h3>
-              <p className="text-white-600">
+              <h3 className="text-xl font-semibold mb-3 text-slate-900">Sign Up Free</h3>
+              <p className="text-slate-700">
                 Create your account in seconds. No credit card required. Access all courses immediately.
               </p>
             </div>
 
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-blue-600">
+            <div className="text-center backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/20">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-400/40 to-blue-600/40 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-blue-700">
                 2
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-800">Learn & Progress</h3>
-              <p className="text-white-600">
+              <h3 className="text-xl font-semibold mb-3 text-slate-900">Learn & Progress</h3>
+              <p className="text-slate-700">
                 Study as many courses as you want. Your progress is automatically saved across all devices.
               </p>
             </div>
 
-            <div className="text-center">
-              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-yellow-600">
+            <div className="text-center backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/20">
+              <div className="w-16 h-16 bg-gradient-to-br from-amber-400/40 to-amber-600/40 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-amber-700">
                 3
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-800">Get Certified</h3>
-              <p className="text-white-600">
+              <h3 className="text-xl font-semibold mb-3 text-slate-900">Get Certified</h3>
+              <p className="text-slate-700">
                 When ready, purchase your Certificate ($12) or Diploma ($18) to prove your achievement.
               </p>
             </div>
@@ -302,7 +288,7 @@ export default function HomePage() {
         </section>
 
           {/* Footer */}
-        <footer className="bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+        <footer className="backdrop-blur-xl bg-white/10 border-t border-white/20 text-slate-900 py-12 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-3 mb-4 md:mb-0">
@@ -316,7 +302,7 @@ export default function HomePage() {
               <span className="text-2xl font-bold">EDUSANNA</span>
             </div>
             <div className="text-center md:text-right">
-              <p className="text-gray-300">© 2025 EDUSANNA. Transforming lives through education.</p>
+              <p className="text-slate-700">© 2025 EDUSANNA. Transforming lives through education.</p>
             </div>
           </div>
         </div>

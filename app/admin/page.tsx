@@ -66,13 +66,7 @@ export default function HomePage() {
         onClose={closePrompt}
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-slate-900 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-glow"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-glow" style={{ animationDelay: "1s" }}></div>
-          <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-glow" style={{ animationDelay: "2s" }}></div>
-        </div>
+  <div className="min-h-screen relative overflow-hidden">
 
         {/* Particle effect overlay */}
         <div className="absolute inset-0 opacity-20">
@@ -301,8 +295,8 @@ export default function HomePage() {
         </div>
         </section>
 
-          {/* Footer */}
-        <footer className="bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+    {/* Footer */}
+    <footer className="backdrop-blur-xl bg-white/10 border-t border-white/20 text-slate-900 py-12 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-3 mb-4 md:mb-0">

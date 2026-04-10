@@ -187,7 +187,56 @@
   }
 }
 
-/* Premium gradient backgrounds */
+/* Premium ultra-luxury background with flowing waves */
+.premium-bg {
+  background: linear-gradient(135deg, #f0f5ff 0%, #e8ecf8 25%, #d9e4f0 50%, #1e3a8a 75%, #0f172a 100%);
+  background-size: 400% 400%;
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 1200px 600px at 20% 0%, rgba(191, 219, 254, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse 1200px 600px at 80% 100%, rgba(30, 58, 138, 0.3) 0%, transparent 50%);
+  animation: wave-flow 15s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.premium-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(110deg, rgba(255, 255, 255, 0.05) 0%, transparent 30%, transparent 70%, rgba(255, 255, 255, 0.02) 100%);
+  pointer-events: none;
+}
+
+/* Wave animation for flowing effect */
+@keyframes wave-flow {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  25% {
+    transform: translateY(-10px) translateX(-10px);
+  }
+  50% {
+    transform: translateY(-20px) translateX(10px);
+  }
+  75% {
+    transform: translateY(-10px) translateX(-10px);
+  }
+}
+
+/* Glassmorphism enhanced background container */
+.premium-container {
+  position: relative;
+  z-index: 1;
+}
+
 .hero-gradient {
   background: linear-gradient(135deg, #3b82f6 0%, #9333ea 50%, #3b82f6 100%);
 }
