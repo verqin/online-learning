@@ -44,10 +44,20 @@ export async function sendWhatsAppMessage(
     }
 
     // Build API request
+    const apiKey = process.env.CALLMEBOT_API_KEY;
+    
+    if (!apiKey) {
+      console.warn('[WhatsApp] CallMeBot API key not configured');
+      return {
+        success: false,
+        message: 'CallMeBot API key not configured',
+      };
+    }
+
     const params = new URLSearchParams({
       phone: phoneNumber,
       text: message,
-      apikey: process.env.CALLMEBOT_API_KEY || 'test', // Test key for development
+      apikey: apiKey,
     });
 
     const response = await fetch(`${CALLMEBOT_API_URL}?${params}`, {
@@ -139,4 +149,24 @@ export async function sendCourseUpdateNotification(
   const message = `📢 Hi ${userName}!\n\n${updateTitle}\n\n${updateMessage}\n\n👉 Log in to Edusanna to learn more`;
 
   return sendWhatsAppMessage(phoneNumber, message);
+}
+
+/**
+ * Sends admin notification for new payment
+ */
+export async function sendWhatsAppNotification(
+  message: string,
+): Promise<WhatsAppResponse> {
+  const adminPhone = process.env.ADMIN_WHATSAPP_PHONE;
+  
+  if (!adminPhone) {
+    console.warn('[WhatsApp] Admin phone number not configured');
+    return {
+      success: false,
+      message: 'Admin phone number not configured',
+    };
+  }
+
+  const fullMessage = `🔔 NEW PAYMENT ALERT\n\n${message}\n\n👉 Check admin dashboard to verify and process.`;
+  return sendWhatsAppMessage(adminPhone, fullMessage);
 }
