@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -26,91 +26,37 @@ import {
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("overview")
-
-  // Get user data from localStorage (set during signup/login)
-  const userEmail = typeof window !== 'undefined' ? localStorage.getItem("userEmail") : ""
-  const userName = typeof window !== 'undefined' ? localStorage.getItem("userName") : ""
-
-  const user = {
-    fullName: userName || "User",
-    email: userEmail || "user@email.com",
-    joinDate: typeof window !== 'undefined' ? (localStorage.getItem("joinDate") || "2024-01-15") : "2024-01-15",
+  const [user, setUser] = useState({
+    fullName: "Learner",
+    email: "user@email.com",
+    joinDate: "2024-01-15",
     completedCertificates: 0,
     completedDiplomas: 0,
     inProgressCourses: 0,
     totalHours: 0,
     avgScore: 0,
-  }
+  })
 
-  const enrolledCourses = [
-    {
-      id: "accounting-cert",
-      title: "Accounting Fundamentals",
-      diplomaTitle: "Accounting Professional",
-      level: "certificate",
-      category: "Finance & Accounting",
-      progress: 75,
-      currentModule: 4,
-      totalModules: 5,
-      lastAccessed: "2024-01-20",
-      status: "in-progress",
-      timeSpent: 12,
-      nextDeadline: "2024-02-01",
-      price: 12,
-      hasDiploma: true,
-      diplomaId: "accounting-dip",
-    },
-    {
-      id: "web-dev-cert",
-      title: "Web Development",
-      diplomaTitle: "Full Stack Development",
-      level: "certificate",
-      category: "IT & Technology",
-      progress: 100,
-      currentModule: 6,
-      totalModules: 6,
-      lastAccessed: "2024-01-18",
-      status: "completed",
-      timeSpent: 18,
-      completionDate: "2024-01-18",
-      certificateId: "CN011T005L3V",
-      price: 12,
-      hasDiploma: true,
-      diplomaId: "web-dev-dip",
-      canUpgrade: true,
-    },
-    {
-      id: "web-dev-dip",
-      title: "Full Stack Development",
-      level: "diploma",
-      category: "IT & Technology",
-      progress: 40,
-      currentModule: 3,
-      totalModules: 8,
-      lastAccessed: "2024-01-19",
-      status: "in-progress",
-      timeSpent: 15,
-      nextDeadline: "2024-02-15",
-      price: 18,
-      prerequisite: "Web Development Certificate",
-    },
-    {
-      id: "marketing-dip",
-      title: "Strategic Marketing",
-      level: "diploma",
-      category: "Business & Leadership",
-      progress: 100,
-      currentModule: 10,
-      totalModules: 10,
-      lastAccessed: "2024-01-10",
-      status: "completed",
-      timeSpent: 20,
-      completionDate: "2024-01-10",
-      certificateId: "CN012T008L4V",
-      price: 18,
-      finalGrade: "distinction",
-    },
-  ]
+  // Get user data from localStorage (set during signup/login)
+  useEffect(() => {
+    const userEmail = localStorage.getItem("userEmail") || "user@email.com"
+    const userName = localStorage.getItem("userName") || "Learner"
+    const joinDate = localStorage.getItem("joinDate") || "2024-01-15"
+
+    setUser({
+      fullName: userName,
+      email: userEmail,
+      joinDate: joinDate,
+      completedCertificates: 0,
+      completedDiplomas: 0,
+      inProgressCourses: 0,
+      totalHours: 0,
+      avgScore: 0,
+    })
+  }, [])
+
+  // Empty array - new users have no courses initially
+  const enrolledCourses: any[] = []
 
   const inProgressCourses = enrolledCourses.filter((course) => course.status === "in-progress")
   const completedCourses = enrolledCourses.filter((course) => course.status === "completed")
@@ -128,15 +74,18 @@ export default function DashboardPage() {
       <nav className="glass-card fixed top-0 w-full z-50 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-10 h-10 rounded-full overflow-hidden shadow-lg border-2 border-blue-600">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden shadow-lg">
                 <img
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%20Jan%2022%2C%202026%2C%2012_21_21%20AM-WKqkdSRv1DtoghNmzkCDSdNQKXoMsG.png"
+                  src="/edusanna-logo.png"
                   alt="Edusanna Logo"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="text-2xl font-bold gradient-text">EDUSANNA</span>
+              <div className="hidden sm:block">
+                <span className="text-lg sm:text-2xl font-bold gradient-text block">EDUSANNA</span>
+                <span className="text-xs text-blue-600">Elevate Your Mind</span>
+              </div>
             </Link>
             <div className="flex items-center space-x-4">
               <Link href="/courses">
@@ -153,57 +102,57 @@ export default function DashboardPage() {
         </div>
       </nav>
 
-      <div className="pt-20 px-4 sm:px-6 lg:px-8 pb-20">
-        <div className="max-w-7xl mx-auto">
+      <div className="pt-24 px-3 sm:px-6 lg:px-8 pb-20">
+        <div className="max-w-7xl mx-auto w-full">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
+            <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 mb-6">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-white text-lg font-bold flex-shrink-0">
                 {user.fullName
                   .split(" ")
                   .map((n) => n[0])
                   .join("")}
               </div>
-              <div>
-                <h1 className="text-3xl font-bold gradient-text">Welcome back, {user.fullName.split(" ")[0]}!</h1>
-                <p className="text-gray-600">Continue your learning journey</p>
+              <div className="text-center sm:text-left flex-1">
+                <h1 className="text-2xl sm:text-3xl font-bold gradient-text text-balance">Welcome back, {user.fullName}!</h1>
+                <p className="text-gray-600 text-sm sm:text-base">Continue your learning journey</p>
               </div>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-              <Card className="glass-card">
-                <CardContent className="p-4 text-center">
-                  <GraduationCap className="w-6 h-6 text-purple-500 mx-auto mb-1" />
-                  <div className="text-xl font-bold gradient-text">{user.completedCertificates}</div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4 mb-8">
+              <Card className="glass-card h-full">
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500 mx-auto mb-1" />
+                  <div className="text-lg sm:text-xl font-bold gradient-text">{user.completedCertificates}</div>
                   <div className="text-gray-600 text-xs">Certificates</div>
                 </CardContent>
               </Card>
-              <Card className="glass-card">
-                <CardContent className="p-4 text-center">
-                  <Award className="w-6 h-6 text-blue-500 mx-auto mb-1" />
-                  <div className="text-xl font-bold gradient-text">{user.completedDiplomas}</div>
+              <Card className="glass-card h-full">
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <Award className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 mx-auto mb-1" />
+                  <div className="text-lg sm:text-xl font-bold gradient-text">{user.completedDiplomas}</div>
                   <div className="text-gray-600 text-xs">Diplomas</div>
                 </CardContent>
               </Card>
-              <Card className="glass-card">
-                <CardContent className="p-4 text-center">
-                  <BookOpen className="w-6 h-6 text-green-500 mx-auto mb-1" />
-                  <div className="text-xl font-bold gradient-text">{user.inProgressCourses}</div>
+              <Card className="glass-card h-full">
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-green-500 mx-auto mb-1" />
+                  <div className="text-lg sm:text-xl font-bold gradient-text">{user.inProgressCourses}</div>
                   <div className="text-gray-600 text-xs">In Progress</div>
                 </CardContent>
               </Card>
-              <Card className="glass-card">
-                <CardContent className="p-4 text-center">
-                  <Clock className="w-6 h-6 text-orange-500 mx-auto mb-1" />
-                  <div className="text-xl font-bold gradient-text">{user.totalHours}h</div>
+              <Card className="glass-card h-full hidden sm:block">
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500 mx-auto mb-1" />
+                  <div className="text-lg sm:text-xl font-bold gradient-text">{user.totalHours}h</div>
                   <div className="text-gray-600 text-xs">Learning Time</div>
                 </CardContent>
               </Card>
-              <Card className="glass-card">
-                <CardContent className="p-4 text-center">
-                  <Star className="w-6 h-6 text-yellow-500 mx-auto mb-1" />
-                  <div className="text-xl font-bold gradient-text">{user.avgScore}</div>
+              <Card className="glass-card h-full hidden sm:block">
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <Star className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500 mx-auto mb-1" />
+                  <div className="text-lg sm:text-xl font-bold gradient-text">{user.avgScore}</div>
                   <div className="text-gray-600 text-xs">Avg. Score</div>
                 </CardContent>
               </Card>
@@ -211,7 +160,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex space-x-1 mb-8 bg-gray-100 p-1 rounded-lg w-fit overflow-x-auto">
+          <div className="flex space-x-1 mb-8 bg-gray-100 p-1 rounded-lg w-full sm:w-fit overflow-x-auto">
             <button
               onClick={() => setActiveTab("overview")}
               className={`px-4 py-2 rounded-md font-medium transition-all whitespace-nowrap ${
@@ -252,6 +201,23 @@ export default function DashboardPage() {
           {activeTab === "overview" && (
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-6">
+                {/* Empty State for New Users */}
+                {enrolledCourses.length === 0 && (
+                  <Card className="glass-card border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-purple-50">
+                    <CardContent className="p-8 text-center">
+                      <BookOpen className="w-16 h-16 text-blue-400 mx-auto mb-4 opacity-50" />
+                      <h3 className="text-2xl font-bold text-blue-900 mb-2">Welcome to Your Learning Journey!</h3>
+                      <p className="text-blue-700 mb-6">You haven&apos;t started any courses yet. Browse our collection of courses and begin learning today.</p>
+                      <Link href="/courses">
+                        <Button className="premium-button">
+                          <Play className="w-4 h-4 mr-2" />
+                          Browse Courses
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {/* Upgrade Opportunities */}
                 {upgradeOpportunities.length > 0 && (
                   <Card className="glass-card border-2 border-purple-300 bg-gradient-to-br from-purple-50 to-blue-50">

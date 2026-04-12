@@ -32,15 +32,18 @@ export default function CoursesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-6">
-              <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition transform hover:scale-105">
-                <div className="w-10 h-10 rounded-full overflow-hidden shadow-lg border-2 border-blue-400 glow-blue">
+              <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition transform hover:scale-105">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden shadow-lg glow-blue">
                   <img
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%20Jan%2022%2C%202026%2C%2012_21_21%20AM-WKqkdSRv1DtoghNmzkCDSdNQKXoMsG.png"
+                    src="/edusanna-logo.png"
                     alt="Edusanna Logo"
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <span className="text-2xl font-bold gradient-text">EDUSANNA</span>
+                <div className="hidden sm:block">
+                  <span className="text-lg sm:text-2xl font-bold gradient-text block">EDUSANNA</span>
+                  <span className="text-xs text-blue-300">Elevate Your Mind</span>
+                </div>
               </Link>
               <Link href="/" className="flex items-center space-x-1 text-blue-300 hover:text-blue-200 font-medium transition">
                 <ArrowLeft className="w-4 h-4" />

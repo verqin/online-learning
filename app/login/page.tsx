@@ -60,13 +60,17 @@ export default function LoginPage() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Link>
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-24 h-24 rounded-full overflow-hidden shadow-md">
+          <div className="flex flex-col items-center justify-center gap-3 mb-6">
+            <div className="w-28 h-28 rounded-full overflow-hidden shadow-lg">
               <img
                 src="/edusanna-logo.png"
                 alt="Edusanna Logo"
                 className="w-full h-full object-cover"
               />
+            </div>
+            <div className="text-center">
+              <h2 className="text-2xl font-bold gradient-text">EDUSANNA</h2>
+              <p className="text-sm text-blue-600">Elevate Your Mind</p>
             </div>
           </div>
           <h1 className="text-2xl font-bold text-blue-900 mb-2">Welcome Back</h1>

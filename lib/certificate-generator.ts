@@ -1,5 +1,5 @@
-import { createCanvas } from 'canvas';
-import { createWriteStream } from 'fs';
+import { PDFDocument, PDFPage, rgb, degrees } from 'pdf-lib';
+import { readFileSync } from 'fs';
 import { join } from 'path';
 
 interface CertificateData {
@@ -12,14 +12,213 @@ interface CertificateData {
 }
 
 /**
- * Generate certificate or diploma as canvas
- * Returns canvas for further processing or image generation
+ * Generate certificate PDF using pdf-lib
+ * Server-side only, no DOM APIs
  */
-export function generateCertificateCanvas(data: CertificateData): HTMLCanvasElement | null {
-  // This function would use canvas to generate the certificate
-  // For production, use a library like html2canvas or jspdf
-  // For now, return the canvas reference for client-side generation
-  return null;
+export async function generateCertificatePDF(data: CertificateData): Promise<Buffer> {
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([850, 650]);
+
+  const isCertificate = data.certificateType === 'certificate';
+
+  // Add background color
+  page.drawRectangle({
+    x: 0,
+    y: 0,
+    width: 850,
+    height: 650,
+    color: rgb(1, 1, 1), // Dark background
+  });
+
+  // Add decorative border
+  page.drawRectangle({
+    x: 20,
+    y: 20,
+    width: 810,
+    height: 610,
+    borderColor: rgb(1, 0.8, 0), // Gold border
+    borderWidth: 3,
+  });
+
+  page.drawRectangle({
+    x: 30,
+    y: 30,
+    width: 790,
+    height: 590,
+    borderColor: rgb(0.6, 0.2, 1), // Purple border
+    borderWidth: 2,
+  });
+
+  // Add white background for content
+  page.drawRectangle({
+    x: 40,
+    y: 40,
+    width: 770,
+    height: 570,
+    color: rgb(1, 1, 1),
+  });
+
+  // Draw main content
+  const fontSize = 24;
+  const titleSize = 36;
+  const smallSize = 14;
+
+  // Header section
+  page.drawText('EDUSANNA', {
+    x: 425,
+    y: 580,
+    size: 32,
+    color: rgb(1, 0.8, 0),
+    align: 'center',
+  });
+
+  page.drawText('Online Learning Platform', {
+    x: 425,
+    y: 555,
+    size: 14,
+    color: rgb(0.6, 0.2, 1),
+    align: 'center',
+  });
+
+  page.drawText('Elevate Your Mind', {
+    x: 425,
+    y: 540,
+    size: 14,
+    color: rgb(0.6, 0.2, 1),
+    align: 'center',
+  });
+
+  // Title
+  page.drawText(
+    isCertificate ? 'CERTIFICATE OF ACHIEVEMENT' : 'DIPLOMA',
+    {
+      x: 425,
+      y: 490,
+      size: titleSize,
+      color: rgb(0, 0, 0),
+      align: 'center',
+    }
+  );
+
+  // Student name
+  page.drawText('This Certifies That', {
+    x: 425,
+    y: 450,
+    size: fontSize,
+    color: rgb(0, 0, 0),
+    align: 'center',
+  });
+
+  page.drawText(data.studentName, {
+    x: 425,
+    y: 415,
+    size: 28,
+    color: rgb(0.6, 0.2, 1),
+    align: 'center',
+  });
+
+  // Course information
+  page.drawText('Has Successfully Completed The', {
+    x: 425,
+    y: 370,
+    size: fontSize,
+    color: rgb(0, 0, 0),
+    align: 'center',
+  });
+
+  page.drawText(data.courseName, {
+    x: 425,
+    y: 335,
+    size: 26,
+    color: rgb(0.6, 0.2, 1),
+    align: 'center',
+  });
+
+  // Skills section (for diploma only)
+  let yPosition = 300;
+  if (!isCertificate && data.skills && data.skills.length > 0) {
+    page.drawText('In Recognition Of Outstanding Achievement:', {
+      x: 425,
+      y: yPosition,
+      size: fontSize,
+      color: rgb(0, 0, 0),
+      align: 'center',
+    });
+
+    yPosition -= 35;
+    const skillsPerRow = 2;
+    const skillWidth = 320;
+    const skillHeight = 30;
+
+    for (let i = 0; i < data.skills.length; i++) {
+      const row = Math.floor(i / skillsPerRow);
+      const col = i % skillsPerRow;
+      const x = 180 + col * (skillWidth + 40);
+      const y = yPosition - row * (skillHeight + 15);
+
+      page.drawRectangle({
+        x,
+        y: y - skillHeight,
+        width: skillWidth,
+        height: skillHeight,
+        borderColor: rgb(0.6, 0.2, 1),
+        borderWidth: 1,
+        color: rgb(0.96, 0.95, 1),
+      });
+
+      page.drawText(data.skills[i], {
+        x: x + 10,
+        y: y - 22,
+        size: smallSize,
+        color: rgb(0, 0, 0),
+      });
+    }
+  } else {
+    page.drawText('In Recognition Of Outstanding Achievement', {
+      x: 425,
+      y: yPosition,
+      size: fontSize,
+      color: rgb(0, 0, 0),
+      align: 'center',
+    });
+  }
+
+  // Certificate ID and details
+  page.drawText(`Certificate ID: ${data.certificateId}`, {
+    x: 425,
+    y: 150,
+    size: smallSize,
+    color: rgb(0, 0, 0),
+    align: 'center',
+  });
+
+  page.drawText('Issued by Edusanna - A Digital Learning Institution', {
+    x: 425,
+    y: 130,
+    size: smallSize,
+    color: rgb(0, 0, 0),
+    align: 'center',
+  });
+
+  page.drawText('This certificate can be verified on Edusanna Online Learning', {
+    x: 425,
+    y: 110,
+    size: smallSize,
+    color: rgb(0, 0, 0),
+    align: 'center',
+  });
+
+  page.drawText(`Issued: ${data.completionDate}`, {
+    x: 425,
+    y: 70,
+    size: smallSize,
+    color: rgb(0, 0, 0),
+    align: 'center',
+  });
+
+  // Generate PDF bytes
+  const pdfBytes = await pdfDoc.save();
+  return Buffer.from(pdfBytes);
 }
 
 /**
@@ -29,7 +228,7 @@ export function generateCertificateText(data: CertificateData): string {
   const isCertificate = data.certificateType === 'certificate';
 
   let text = `EDUSANNA
-Online Learning
+Online Learning Platform
 Elevate Your Mind
 
 ${isCertificate ? 'CERTIFICATE OF ACHIEVEMENT' : 'DIPLOMA'}
@@ -66,275 +265,164 @@ Issued: ${data.completionDate}
 }
 
 /**
- * Generate certificate HTML for PDF conversion
+ * Generate certificate HTML for preview
  */
 export function generateCertificateHTML(data: CertificateData): string {
   const isCertificate = data.certificateType === 'certificate';
 
-  const skillsList = data.skills && data.skills.length > 0
-    ? `<div style="margin-top: 20px; text-align: center;">
+  const skillsList =
+    data.skills && data.skills.length > 0
+      ? `<div style="margin-top: 20px; text-align: center;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px auto; max-width: 600px;">
           ${data.skills
             .map(
-              (skill, i) =>
-                `<div style="padding: 10px; border: 1px solid #e0e7ff; border-radius: 8px; background: #f0f7ff;">
+              (skill) =>
+                `<div style="padding: 10px; border: 1px solid #a855f7; border-radius: 8px; background: #f5f3ff; color: #333; font-weight: 500;">
               ${skill}
             </div>`
             )
             .join('')}
         </div>
       </div>`
-    : '';
+      : '';
 
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${data.certificateType === 'diploma' ? 'Diploma' : 'Certificate'} - ${data.courseName}</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <style>
         body {
-            font-family: 'Georgia', serif;
-            background: white;
-            padding: 40px;
+          font-family: 'Georgia', serif;
+          margin: 0;
+          padding: 20px;
+          background: #f0f0f0;
         }
-
-        .certificate-container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border: 3px solid #1f2937;
-            border-radius: 20px;
-            padding: 60px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
+        .certificate {
+          width: 850px;
+          height: 650px;
+          margin: 0 auto;
+          background: linear-gradient(135deg, #1e1b4b 0%, #5b21b6 50%, #1e1b4b 100%);
+          border: 3px solid #d4af37;
+          position: relative;
+          padding: 40px;
+          box-sizing: border-box;
+          color: #333;
         }
-
-        .certificate-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 120px;
-            background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 50%, #4c1d95 100%);
-            clip-path: polygon(0 0, 100% 0, 100% 70%, 0 100%);
+        .certificate::after {
+          content: '';
+          position: absolute;
+          top: 20px;
+          left: 20px;
+          right: 20px;
+          bottom: 20px;
+          border: 2px solid #a855f7;
+          pointer-events: none;
         }
-
-        .header {
-            text-align: center;
-            margin-bottom: 50px;
-            position: relative;
-            z-index: 1;
-            padding-top: 40px;
-            color: white;
-        }
-
-        .header h1 {
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 14px;
-            opacity: 0.95;
-        }
-
         .content {
-            text-align: center;
-            position: relative;
-            z-index: 1;
+          position: relative;
+          z-index: 1;
+          background: white;
+          padding: 40px;
+          height: 100%;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
         }
-
+        .header {
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        .header h2 {
+          color: #d4af37;
+          font-size: 24px;
+          margin: 0;
+        }
+        .header p {
+          color: #a855f7;
+          margin: 5px 0;
+          font-size: 12px;
+        }
         .title {
-            font-size: 32px;
-            font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 30px;
-            letter-spacing: 2px;
+          text-align: center;
+          font-size: 36px;
+          color: #000;
+          margin: 20px 0;
+          letter-spacing: 2px;
         }
-
-        .text-block {
-            margin: 25px 0;
-            font-size: 18px;
-            color: #374151;
-            line-height: 1.8;
+        .body-text {
+          text-align: center;
+          font-size: 18px;
+          margin: 15px 0;
         }
-
         .student-name {
-            font-size: 28px;
-            font-weight: bold;
-            color: #2d3748;
-            margin: 20px 0;
-            text-decoration: underline;
-            text-decoration-color: #a855f7;
-            text-decoration-thickness: 3px;
-            text-underline-offset: 8px;
+          font-size: 28px;
+          color: #a855f7;
+          font-weight: bold;
+          margin: 20px 0;
         }
-
         .course-name {
-            font-size: 24px;
-            color: #a855f7;
-            font-weight: bold;
-            margin: 20px 0;
-            text-decoration: underline;
-            text-decoration-color: #fbbf24;
-            text-decoration-thickness: 2px;
-            text-underline-offset: 8px;
+          font-size: 24px;
+          color: #a855f7;
+          font-weight: bold;
+          margin: 15px 0;
         }
-
-        .certificate-id {
-            font-family: 'Courier New', monospace;
-            font-size: 16px;
-            font-weight: bold;
-            color: #1f2937;
-            margin: 20px 0;
-            padding: 15px;
-            background: #f3f4f6;
-            border-radius: 8px;
+        .skills {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+          margin: 20px 0;
+          max-width: 600px;
+          margin-left: auto;
+          margin-right: auto;
         }
-
+        .skill {
+          padding: 8px;
+          border: 1px solid #a855f7;
+          border-radius: 4px;
+          background: #f5f3ff;
+          text-align: center;
+          font-size: 12px;
+          color: #333;
+        }
         .footer-text {
-            font-size: 14px;
-            color: #6b7280;
-            margin-top: 30px;
-            line-height: 1.6;
+          text-align: center;
+          font-size: 12px;
+          color: #666;
+          margin: 10px 0;
         }
-
-        .signature-section {
-            margin-top: 40px;
-            display: flex;
-            justify-content: space-around;
-            align-items: flex-end;
-            padding-top: 30px;
-            border-top: 2px solid #e5e7eb;
-        }
-
-        .signature-line {
-            text-align: center;
-            flex: 1;
-        }
-
-        .signature-line p {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 10px;
-        }
-
-        .skills-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin: 30px auto;
-            max-width: 600px;
-        }
-
-        .skill-item {
-            padding: 12px;
-            border: 1px solid #dbeafe;
-            border-radius: 8px;
-            background: #f0f7ff;
-            color: #1e40af;
-            font-size: 14px;
-            font-weight: 500;
-        }
-    </style>
-</head>
-<body>
-    <div class="certificate-container">
-        <div class="header">
-            <h1>EDUSANNA</h1>
-            <p>Online Learning</p>
-            <p>Elevate Your Mind</p>
-        </div>
-
+      </style>
+    </head>
+    <body>
+      <div class="certificate">
         <div class="content">
-            <div class="title">${isCertificate ? 'CERTIFICATE OF ACHIEVEMENT' : 'DIPLOMA'}</div>
+          <div class="header">
+            <h2>EDUSANNA</h2>
+            <p>Online Learning Platform</p>
+            <p>Elevate Your Mind</p>
+          </div>
 
-            <div class="text-block">This Certifies That</div>
-            <div class="student-name">${data.studentName}</div>
+          <div class="title">${isCertificate ? 'CERTIFICATE OF ACHIEVEMENT' : 'DIPLOMA'}</div>
 
-            <div class="text-block">Has Successfully Completed The</div>
-            <div class="course-name">${data.courseName}</div>
+          <div class="body-text">This Certifies That</div>
+          <div class="student-name">${data.studentName}</div>
+          <div class="body-text">Has Successfully Completed The</div>
+          <div class="course-name">${data.courseName}</div>
 
-            ${
-              isCertificate
-                ? '<div class="text-block">In Recognition Of Outstanding Achievement</div>'
-                : '<div class="text-block">In Recognition Of Outstanding Achievement:</div>'
-            }
+          ${skillsList}
 
-            ${skillsList}
+          <div class="body-text">In Recognition Of Outstanding Achievement</div>
 
-            <div class="certificate-id">Certificate ID: ${data.certificateId}</div>
-
-            <div class="footer-text">
-                <p>Issued by Edusanna - A Digital Learning Institution</p>
-                <p style="margin-top: 10px;">This certificate can be verified on Edusanna Online Learning</p>
-                <p style="margin-top: 10px;">Issued: ${data.completionDate}</p>
-            </div>
-
-            <div class="signature-section">
-                <div class="signature-line">
-                    <div style="height: 40px; border-top: 2px solid #1f2937; margin-bottom: 10px; width: 150px;"></div>
-                    <p>Edusanna Founder</p>
-                </div>
-            </div>
+          <div class="footer-text">
+            <div>Certificate ID: ${data.certificateId}</div>
+            <div style="margin-top: 10px;">Issued by Edusanna - A Digital Learning Institution</div>
+            <div>This certificate can be verified on Edusanna Online Learning</div>
+            <div style="margin-top: 10px;">Issued: ${data.completionDate}</div>
+          </div>
         </div>
-    </div>
-</body>
-</html>`;
-}
-
-/**
- * Generate certificate and save as file
- * Uses html2pdf or similar library on client side
- */
-export async function generateCertificatePDF(
-  data: CertificateData,
-  outputPath?: string
-): Promise<Blob | null> {
-  try {
-    const html = generateCertificateHTML(data);
-
-    // For client-side: return the HTML for pdf conversion library
-    // For server-side: would need to use a library like puppeteer or weasyprint
-    const blob = new Blob([html], { type: 'text/html' });
-    return blob;
-  } catch (error) {
-    console.error('Error generating PDF:', error);
-    return null;
-  }
-}
-
-/**
- * Prepare certificate data for HTML/PDF generation
- */
-export function prepareCertificateData(payment: {
-  student_name: string;
-  course_name: string;
-  certificate_id: string;
-  certificate_type: string;
-  created_at: string;
-  skills?: string[];
-}): CertificateData {
-  return {
-    studentName: payment.student_name,
-    courseName: payment.course_name,
-    certificateId: payment.certificate_id,
-    completionDate: new Date(payment.created_at).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }),
-    certificateType: payment.certificate_type as 'certificate' | 'diploma',
-    skills: payment.skills || [],
-  };
+      </div>
+    </body>
+    </html>
+  `;
 }

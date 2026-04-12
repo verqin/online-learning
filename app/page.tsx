@@ -76,15 +76,15 @@ export default function HomePage() {
                 className="flex items-center space-x-2 sm:space-x-3 hover:opacity-90 transition transform hover:scale-105 min-w-0"
                 title="Edusanna - Elevate Your Mind"
               >
-                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full overflow-hidden shadow-md border-2 border-blue-500 flex-shrink-0">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden shadow-md flex-shrink-0">
                   <img
                     src="/edusanna-logo.png"
                     alt="Edusanna Logo"
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="hidden sm:block">
-                  <span className="text-xl sm:text-3xl font-bold gradient-text block">EDUSANNA</span>
+                <div className="hidden xs:flex xs:flex-col xs:justify-center">
+                  <span className="text-lg sm:text-2xl md:text-3xl font-bold gradient-text block leading-tight">EDUSANNA</span>
                   <div className="text-xs text-blue-600 font-medium">Elevate Your Mind</div>
                 </div>
               </button>
