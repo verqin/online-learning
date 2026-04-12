@@ -41,17 +41,17 @@ export default function CoursesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-6">
-              <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition transform hover:scale-105">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden shadow-lg glow-blue">
+              <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition transform hover:scale-105 min-w-0">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full overflow-hidden shadow-lg glow-blue flex-shrink-0">
                   <img
                     src="/edusanna-logo.png"
                     alt="Edusanna Logo"
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="hidden sm:block">
-                  <span className="text-lg sm:text-2xl font-bold gradient-text block">EDUSANNA</span>
-                  <span className="text-xs text-blue-300">Elevate Your Mind</span>
+                <div className="flex flex-col justify-center min-w-0">
+                  <span className="text-xs sm:text-lg md:text-2xl font-bold gradient-text block leading-tight truncate">EDUSANNA</span>
+                  <span className="text-xs text-blue-300 truncate">Elevate Your Mind</span>
                 </div>
               </Link>
               <Link href="/" className="flex items-center space-x-1 text-blue-300 hover:text-blue-200 font-medium transition">
