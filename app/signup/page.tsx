@@ -22,14 +22,23 @@ export default function SignupPage() {
     city: "",
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError("")
     setIsLoading(true)
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!")
+      setError("Passwords do not match")
+      setIsLoading(false)
+      return
+    }
+
+    // Validate password strength
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters")
       setIsLoading(false)
       return
     }
@@ -66,13 +75,17 @@ export default function SignupPage() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Link>
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-24 h-24 rounded-full overflow-hidden shadow-md">
+          <div className="flex flex-col items-center justify-center gap-3 mb-6">
+            <div className="w-28 h-28 rounded-full overflow-hidden shadow-lg">
               <img
                 src="/edusanna-logo.png"
                 alt="Edusanna Logo"
                 className="w-full h-full object-cover"
               />
+            </div>
+            <div className="text-center">
+              <h2 className="text-2xl font-bold gradient-text">EDUSANNA</h2>
+              <p className="text-sm text-blue-600">Elevate Your Mind</p>
             </div>
           </div>
           <h1 className="text-2xl font-bold text-blue-900 mb-2">Create Your Account</h1>
@@ -85,6 +98,11 @@ export default function SignupPage() {
             <CardTitle className="text-xl gradient-text">Get Started Today</CardTitle>
           </CardHeader>
           <CardContent>
+            {error && (
+              <div className="mb-4 p-4 bg-red-100 border border-red-400 rounded-lg">
+                <p className="text-red-700 text-sm font-medium">{error}</p>
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="fullName" className="flex items-center text-blue-900 mb-2">
