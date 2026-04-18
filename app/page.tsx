@@ -76,11 +76,11 @@ export default function HomePage() {
                 className="flex items-center space-x-2 sm:space-x-3 hover:opacity-90 transition transform hover:scale-105 min-w-0"
                 title="Edusanna - Elevate Your Mind"
               >
-                <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-md flex-shrink-0">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-md flex-shrink-0 flex items-center justify-center bg-white">
                   <img
                     src="/edusanna-logo.png"
                     alt="Edusanna Logo"
-                    className="w-full h-full object-cover"
+                    className="w-10 h-10 sm:w-14 sm:h-14 md:w-18 md:h-18 object-contain"
                   />
                 </div>
                 <div className="flex flex-col justify-center min-w-0">
@@ -295,17 +295,22 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-3 mb-4 md:mb-0">
-              <div className="w-10 h-10 rounded-full overflow-hidden shadow-md border-2 border-blue-500">
+              <div className="w-10 h-10 rounded-full overflow-hidden shadow-md flex items-center justify-center bg-white">
                 <img
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%20Jan%2022%2C%202026%2C%2012_21_21%20AM-WKqkdSRv1DtoghNmzkCDSdNQKXoMsG.png"
+                  src="/edusanna-logo.png"
                   alt="Edusanna Logo"
-                  className="w-full h-full object-cover"
+                  className="w-8 h-8 object-contain"
                 />
               </div>
               <span className="text-2xl font-bold gradient-text">EDUSANNA</span>
             </div>
-            <div className="text-center md:text-right">
+            <div className="text-center md:text-right space-y-2">
               <p className="text-blue-700">© 2025 EDUSANNA. Transforming lives through education.</p>
+              <div className="flex justify-center md:justify-end gap-4 text-sm">
+                <Link href="/privacy-policy" className="text-blue-600 hover:text-blue-800">Privacy</Link>
+                <Link href="/terms-of-use" className="text-blue-600 hover:text-blue-800">Terms</Link>
+                <Link href="/contact" className="text-blue-600 hover:text-blue-800">Contact</Link>
+              </div>
             </div>
           </div>
         </div>
