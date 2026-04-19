@@ -22,15 +22,16 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Check for admin credentials - hardcoded for now (should use environment variables in production)
-    const adminEmail = "edusannaonlinelearning@gmail.com"
-    const adminPassword = "ES#1"
+    // Check for admin credentials - use environment variables (should NOT be hardcoded in production)
+    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "tinasheleev@gmail.com"
+    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "ES#1Jehovah"
     
     if (formData.email === adminEmail && formData.password === adminPassword) {
       localStorage.setItem("isAdmin", "true")
       localStorage.setItem("isLoggedIn", "false")
       localStorage.setItem("adminEmail", formData.email)
-      window.location.href = "/admin"
+      // In production, redirect to 2FA verification
+      window.location.href = "/admin/verify-2fa"
       return
     }
 
