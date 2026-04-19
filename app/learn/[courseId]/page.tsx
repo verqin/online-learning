@@ -42,14 +42,14 @@ export default function CourseLearningPage({ params }: { params: { courseId: str
         id: 1,
         title: 'Getting Started with HTML',
         duration: '45 mins',
-        type: 'video',
+        type: 'lesson',
         description: 'Learn the basics of HTML structure and semantic elements',
       },
       {
         id: 2,
         title: 'CSS Styling Basics',
         duration: '50 mins',
-        type: 'video',
+        type: 'lesson',
         description: 'Master CSS selectors, properties, and responsive design',
       },
       {
@@ -63,7 +63,7 @@ export default function CourseLearningPage({ params }: { params: { courseId: str
         id: 4,
         title: 'JavaScript Fundamentals',
         duration: '60 mins',
-        type: 'video',
+        type: 'lesson',
         description: 'Understand variables, functions, and DOM manipulation',
       },
       {
@@ -195,9 +195,16 @@ export default function CourseLearningPage({ params }: { params: { courseId: str
                     <p className="font-semibold text-sm text-blue-900 truncate">Module {index + 1}</p>
                     <p className="text-xs text-gray-600 truncate">{module.title}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className="text-xs">
-                        {module.type}
-                      </Badge>
+                      {(module.type === 'quiz' || module.type === 'project') && (
+                        <Badge 
+                          variant="outline" 
+                          className={`text-xs ${
+                            module.type === 'quiz' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                          }`}
+                        >
+                          {module.type === 'quiz' ? '📝 Quiz' : '🚀 Project'}
+                        </Badge>
+                      )}
                       <span className="text-xs text-gray-500">{module.duration}</span>
                     </div>
                   </div>

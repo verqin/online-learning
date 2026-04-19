@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { MotivationalPopup } from "@/components/motivational-popup"
+import { ProtectedRoute } from "@/components/protected-route"
 import {
   BookOpen,
   LogOut,
@@ -66,7 +67,8 @@ export default function DashboardPage() {
   const upgradeOpportunities = completedCourses.filter((c) => c.level === "certificate" && c.canUpgrade)
 
   return (
-    <div className="min-h-screen">
+    <ProtectedRoute>
+      <div className="min-h-screen">
       {/* Motivational Popup */}
       <MotivationalPopup />
 
@@ -75,11 +77,11 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full overflow-hidden shadow-lg flex-shrink-0">
+              <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full overflow-hidden shadow-lg flex-shrink-0 bg-gradient-to-br from-purple-400 to-blue-600">
                 <img
                   src="/edusanna-logo.png"
                   alt="Edusanna Logo"
-                  className="w-full h-full object-cover"
+                  className="w-10 h-10 sm:w-14 sm:h-14 object-cover"
                 />
               </div>
               <div className="flex flex-col justify-center min-w-0">
@@ -719,5 +721,6 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   )
 }

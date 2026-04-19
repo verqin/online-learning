@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { LogOut, Users, CreditCard, Award, BarChart3, Settings } from "lucide-react"
+import { ProtectedRoute } from "@/components/protected-route"
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -44,17 +45,18 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-blue-50">
+    <ProtectedRoute requireAdmin>
+      <div className="min-h-screen bg-gradient-to-b from-white to-blue-50">
       {/* Admin Header */}
       <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-white/70 border-b border-blue-200/30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <Link href="/admin/dashboard" className="flex items-center space-x-3">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden shadow-md">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden shadow-md bg-gradient-to-br from-purple-400 to-blue-600">
                 <img
                   src="/edusanna-logo.png"
                   alt="Edusanna Logo"
-                  className="w-full h-full object-cover"
+                  className="w-14 h-14 sm:w-16 sm:h-16 object-cover"
                 />
               </div>
               <div className="hidden sm:flex sm:flex-col">
@@ -158,5 +160,6 @@ export default function AdminDashboard() {
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   )
 }
