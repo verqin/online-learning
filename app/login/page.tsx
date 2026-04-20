@@ -54,10 +54,13 @@ export default function LoginPage() {
         return
       } else {
         // Invalid credentials
+        const errorData = await response.json()
+        setError(errorData.error || "Invalid email or password")
         setIsLoading(false)
       }
     } catch (error) {
       console.error("[v0] Login error:", error)
+      setError("Login failed. Please try again.")
       setIsLoading(false)
     }
   }
