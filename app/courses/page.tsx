@@ -7,8 +7,18 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { BookOpen, Search, GraduationCap, Award, Clock, Filter, ArrowRight, ArrowLeft } from "lucide-react"
-import { courseCatalog, getAllLetters, courseCategories } from "@/lib/course-catalog"
+import { BookOpen, Search, GraduationCap, Award, Clock, Filter, ArrowRight, ArrowLeft, Loader } from "lucide-react"
+import { courseCategories } from "@/lib/course-catalog"
+
+interface Course {
+  id: string
+  letter: string
+  certificateTitle: string
+  diplomaTitle: string
+  category: string
+  icon: string
+  color: string
+}
 
 export default function CoursesPage() {
   const router = useRouter()
@@ -16,16 +26,38 @@ export default function CoursesPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [courses, setCourses] = useState<Course[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [letters, setLetters] = useState<string[]>([])
 
   useEffect(() => {
     // Check if user is logged in
     const loggedIn = localStorage.getItem("isLoggedIn") === "true"
     setIsLoggedIn(loggedIn)
+
+    // Fetch courses from API
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('/api/courses/get-all')
+        if (response.ok) {
+          const data = await response.json()
+          setCourses(data.courses || [])
+          
+          // Extract unique letters for filtering
+          const uniqueLetters = [...new Set(data.courses.map((c: Course) => c.letter))].sort()
+          setLetters(uniqueLetters)
+        }
+      } catch (error) {
+        console.error('[v0] Error fetching courses:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchCourses()
   }, [])
 
-  const letters = getAllLetters()
-
-  const filteredCourses = courseCatalog.filter((course) => {
+  const filteredCourses = courses.filter((course) => {
     const matchesSearch =
       course.certificateTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
       course.diplomaTitle.toLowerCase().includes(searchTerm.toLowerCase())
@@ -131,7 +163,7 @@ export default function CoursesPage() {
               >
                 All
               </Button>
-              {letters.map((letter) => (
+              {letters && letters.map((letter) => (
                 <Button
                   key={letter}
                   onClick={() => setSelectedLetter(letter)}
@@ -181,11 +213,18 @@ export default function CoursesPage() {
 
       <section className="pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-6 text-white-600">
-            Showing {filteredCourses.length} course{filteredCourses.length !== 1 ? "s" : ""}
-          </div>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader className="w-8 h-8 animate-spin text-blue-600 mr-2" />
+              <p className="text-white-600">Loading courses...</p>
+            </div>
+          ) : (
+            <>
+              <div className="mb-6 text-white-600">
+                Showing {filteredCourses.length} course{filteredCourses.length !== 1 ? "s" : ""}
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCourses.map((course) => (
               <Card key={course.id} className="course-card group border-gray-200">
                 <CardHeader className="pb-4">
@@ -198,50 +237,76 @@ export default function CoursesPage() {
                   <CardTitle className="text-lg text-gray-800 leading-tight mb-4">{course.certificateTitle}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="p-4 rounded-lg border-2 border-blue-200 bg-blue-50/50 hover:border-blue-400 transition-all">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <GraduationCap className="w-5 h-5 text-blue-600" />
-                        <span className="font-semibold text-gray-800">Certificate</span>
+                  {isLoggedIn ? (
+                    <>
+                      <Link href={`/learn/${course.id}`} className="block">
+                        <Button className="w-full premium-button h-12 text-base font-semibold">
+                          <BookOpen className="w-5 h-5 mr-2" />
+                          Start Learning
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </Link>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="p-3 rounded-lg border-2 border-blue-200 bg-blue-50/50">
+                          <div className="flex items-center gap-1 mb-1">
+                            <GraduationCap className="w-4 h-4 text-blue-600" />
+                            <span className="text-xs font-semibold text-gray-800">Certificate</span>
+                          </div>
+                          <p className="text-xs text-gray-600">5-6 modules</p>
+                        </div>
+                        <div className="p-3 rounded-lg border-2 border-gray-300 bg-gray-50/50">
+                          <div className="flex items-center gap-1 mb-1">
+                            <Award className="w-4 h-4 text-gray-700" />
+                            <span className="text-xs font-semibold text-gray-800">Diploma</span>
+                          </div>
+                          <p className="text-xs text-gray-600">8-10 modules</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600 mb-3">
-                      <Clock className="w-4 h-4 mr-1" />
-                      5-6 modules
-                    </div>
-                    <Link href={`/course/${course.id}/certificate`}>
-                      <Button className="w-full premium-button" size="sm">
-                        View Certificate
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </Link>
-                  </div>
-
-                  <div className="p-4 rounded-lg border-2 border-gray-300 bg-gray-50/50 hover:border-gray-400 transition-all">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Award className="w-5 h-5 text-gray-700" />
-                        <span className="font-semibold text-gray-800">Diploma</span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <p className="text-sm text-gray-700 mb-4 font-semibold">Start Learning Today</p>
+                        <p className="text-xs text-gray-600 mb-4">
+                          Create an account or sign in to enroll in this course and track your progress.
+                        </p>
+                        <div className="flex gap-2">
+                          <Link href="/login" className="flex-1">
+                            <Button variant="outline" className="w-full border-blue-300 text-blue-600" size="sm">
+                              Sign In
+                            </Button>
+                          </Link>
+                          <Link href="/signup" className="flex-1">
+                            <Button className="w-full premium-button" size="sm">
+                              Create Account
+                            </Button>
+                          </Link>
+                        </div>
                       </div>
-                    </div>
-                    <p className="text-xs text-gray-600 mb-2">{course.diplomaTitle}</p>
-                    <div className="flex items-center text-sm text-gray-600 mb-3">
-                      <Clock className="w-4 h-4 mr-1" />
-                      8-10 modules
-                    </div>
-                    <Link href={`/course/${course.id}/diploma`}>
-                      <Button variant="outline" className="w-full bg-white border-gray-300" size="sm">
-                        View Diploma
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </Link>
-                  </div>
+                      <p className="text-xs text-center text-gray-600">Learn for free first. Pay only when you're ready for certification.</p>
+                    </>
+                  )}
                 </CardContent>
               </Card>
-            ))}
-          </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </section>
+
+      {/* Enrollment Modal/Message - Show only for logged-in users */}
+      {isLoggedIn && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 hidden" id="enrollmentModal">
+          <Card className="w-full max-w-md glass-card-light">
+            <CardContent className="p-6 text-center">
+              <h3 className="text-lg font-bold mb-2">Ready to Learn?</h3>
+              <p className="text-gray-600 mb-4">You're enrolled and ready to start this course!</p>
+              <Button className="w-full premium-button">Start Learning</Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }

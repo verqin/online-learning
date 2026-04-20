@@ -22,29 +22,47 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Check for admin credentials - use environment variables (should NOT be hardcoded in production)
-    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "tinasheleev@gmail.com"
-    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "ES#1Jehovah"
-    
-    if (formData.email === adminEmail && formData.password === adminPassword) {
-      localStorage.setItem("isAdmin", "true")
-      localStorage.setItem("isLoggedIn", "false")
-      localStorage.setItem("adminEmail", formData.email)
-      // In production, redirect to 2FA verification
-      window.location.href = "/admin/verify-2fa"
-      return
+    try {
+      // Call secure server-side API to verify credentials
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        // Admin login
+        if (data.isAdmin) {
+          localStorage.setItem("isAdmin", "true")
+          localStorage.setItem("isLoggedIn", "false")
+          localStorage.setItem("adminEmail", formData.email)
+          window.location.href = "/admin/verify-2fa"
+          return
+        }
+
+        // Learner login
+        localStorage.setItem("isLoggedIn", "true")
+        localStorage.setItem("isAdmin", "false")
+        localStorage.setItem("userEmail", formData.email)
+        localStorage.setItem("userName", data.userName || formData.email)
+        window.location.href = "/dashboard"
+        return
+      } else {
+        // Invalid credentials
+        const errorData = await response.json()
+        setError(errorData.error || "Invalid email or password")
+        setIsLoading(false)
+      }
+    } catch (error) {
+      console.error("[v0] Login error:", error)
+      setError("Login failed. Please try again.")
+      setIsLoading(false)
     }
-
-    // Store user session for regular users
-    localStorage.setItem("isLoggedIn", "true")
-    localStorage.setItem("isAdmin", "false")
-    localStorage.setItem("userEmail", formData.email)
-
-    // Simulate API call for regular users
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-
-    // Redirect to dashboard
-    window.location.href = "/dashboard"
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

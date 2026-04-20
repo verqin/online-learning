@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ArrowLeft, Shield, Clock, Mail } from 'lucide-react'
+import { ArrowLeft, Shield, Clock, MessageCircle } from 'lucide-react'
 
 export default function Verify2FAPage() {
   const router = useRouter()
@@ -53,7 +53,7 @@ export default function Verify2FAPage() {
 
     try {
       // Verify code via API
-      const response = await fetch('/api/auth/verify-2fa', {
+      const response = await fetch('/api/auth/verify-2fa-whatsapp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -99,19 +99,19 @@ export default function Verify2FAPage() {
     setError('')
 
     try {
-      const response = await fetch('/api/auth/send-2fa', {
+      const response = await fetch('/api/auth/send-2fa-whatsapp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: adminEmail }),
       })
 
       if (response.ok) {
-        alert('New code sent to your email')
+        alert('New code sent to your WhatsApp')
       } else {
         alert('Could not resend code. Please try again.')
       }
     } catch (err) {
-      alert('Code resend failed. Check your email or try again.')
+      alert('Code resend failed. Try again.')
     }
   }
 
@@ -149,8 +149,8 @@ export default function Verify2FAPage() {
             </div>
             <CardTitle className="text-2xl gradient-text">Two-Factor Authentication</CardTitle>
             <p className="text-sm text-gray-600 mt-3 flex items-center justify-center gap-2">
-              <Mail className="w-4 h-4" />
-              Code sent to: <span className="font-semibold">{adminEmail}</span>
+              <MessageCircle className="w-4 h-4" />
+              Code sent to: <span className="font-semibold">Your WhatsApp</span>
             </p>
           </CardHeader>
 
