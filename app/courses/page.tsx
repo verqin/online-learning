@@ -7,8 +7,18 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { BookOpen, Search, GraduationCap, Award, Clock, Filter, ArrowRight, ArrowLeft } from "lucide-react"
-import { courseCatalog, getAllLetters, courseCategories } from "@/lib/course-catalog"
+import { BookOpen, Search, GraduationCap, Award, Clock, Filter, ArrowRight, ArrowLeft, Loader } from "lucide-react"
+import { courseCategories } from "@/lib/course-catalog"
+
+interface Course {
+  id: string
+  letter: string
+  certificateTitle: string
+  diplomaTitle: string
+  category: string
+  icon: string
+  color: string
+}
 
 export default function CoursesPage() {
   const router = useRouter()
@@ -16,16 +26,38 @@ export default function CoursesPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [courses, setCourses] = useState<Course[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [letters, setLetters] = useState<string[]>([])
 
   useEffect(() => {
     // Check if user is logged in
     const loggedIn = localStorage.getItem("isLoggedIn") === "true"
     setIsLoggedIn(loggedIn)
+
+    // Fetch courses from API
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('/api/courses/get-all')
+        if (response.ok) {
+          const data = await response.json()
+          setCourses(data.courses || [])
+          
+          // Extract unique letters for filtering
+          const uniqueLetters = [...new Set(data.courses.map((c: Course) => c.letter))].sort()
+          setLetters(uniqueLetters)
+        }
+      } catch (error) {
+        console.error('[v0] Error fetching courses:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchCourses()
   }, [])
 
-  const letters = getAllLetters()
-
-  const filteredCourses = courseCatalog.filter((course) => {
+  const filteredCourses = courses.filter((course) => {
     const matchesSearch =
       course.certificateTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
       course.diplomaTitle.toLowerCase().includes(searchTerm.toLowerCase())
@@ -131,7 +163,7 @@ export default function CoursesPage() {
               >
                 All
               </Button>
-              {letters.map((letter) => (
+              {letters && letters.map((letter) => (
                 <Button
                   key={letter}
                   onClick={() => setSelectedLetter(letter)}
@@ -181,11 +213,18 @@ export default function CoursesPage() {
 
       <section className="pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-6 text-white-600">
-            Showing {filteredCourses.length} course{filteredCourses.length !== 1 ? "s" : ""}
-          </div>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader className="w-8 h-8 animate-spin text-blue-600 mr-2" />
+              <p className="text-white-600">Loading courses...</p>
+            </div>
+          ) : (
+            <>
+              <div className="mb-6 text-white-600">
+                Showing {filteredCourses.length} course{filteredCourses.length !== 1 ? "s" : ""}
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCourses.map((course) => (
               <Card key={course.id} className="course-card group border-gray-200">
                 <CardHeader className="pb-4">
@@ -249,8 +288,10 @@ export default function CoursesPage() {
                   )}
                 </CardContent>
               </Card>
-            ))}
-          </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </section>
 
