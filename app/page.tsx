@@ -76,9 +76,9 @@ export default function HomePage() {
                 className="flex items-center space-x-2 sm:space-x-3 hover:opacity-90 transition transform hover:scale-105 min-w-0"
                 title="Edusanna - Elevate Your Mind"
               >
-                <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-md flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-purple-400 to-blue-600">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-md flex-shrink-0 flex items-center justify-center bg-white border-2 border-gray-100">
                   <img
-                    src="/edusanna-logo.png"
+                    src="/edusanna-logo-new.png"
                     alt="Edusanna Logo"
                     className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 object-cover"
                   />

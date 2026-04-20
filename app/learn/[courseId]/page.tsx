@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
@@ -12,13 +12,10 @@ import {
   ChevronRight,
   CheckCircle2,
   Clock,
-  Zap,
-  Award,
-  Volume2,
-  Settings,
+  ArrowLeft,
   Menu,
   X,
-  ArrowLeft,
+  Award,
 } from 'lucide-react'
 
 export default function CourseLearningPage({ params }: { params: { courseId: string } }) {
@@ -29,14 +26,10 @@ export default function CourseLearningPage({ params }: { params: { courseId: str
   const [currentModule, setCurrentModule] = useState(0)
   const [completedModules, setCompletedModules] = useState<number[]>([])
 
-  // Mock course data - replace with API call
   const courseData = {
     id: params.courseId,
     title: 'Web Development Fundamentals',
     instructor: 'Sarah Johnson',
-    rating: 4.8,
-    students: 12543,
-    progress: 35,
     modules: [
       {
         id: 1,
@@ -77,29 +70,32 @@ export default function CourseLearningPage({ params }: { params: { courseId: str
   }
 
   useEffect(() => {
-    // Check if user is logged in
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true'
-    setIsLoggedIn(loggedIn)
-
-    if (!loggedIn) {
-      router.push('/login?redirect=/learn/' + params.courseId)
-      return
+    const checkAuth = () => {
+      const loggedIn = localStorage.getItem('isLoggedIn') === 'true'
+      
+      if (!loggedIn) {
+        router.push(`/login?redirect=/learn/${params.courseId}`)
+        return
+      }
+      
+      setIsLoggedIn(true)
+      
+      const saved = localStorage.getItem(`course-${params.courseId}-completed`)
+      if (saved) {
+        setCompletedModules(JSON.parse(saved))
+      }
+      
+      setIsLoading(false)
     }
 
-    setIsLoading(false)
-
-    // Simulate loading saved progress
-    const savedProgress = localStorage.getItem(`course-${params.courseId}-progress`)
-    if (savedProgress) {
-      setCompletedModules(JSON.parse(savedProgress))
-    }
+    checkAuth()
   }, [params.courseId, router])
 
   const handleModuleComplete = (moduleId: number) => {
     if (!completedModules.includes(moduleId)) {
       const updated = [...completedModules, moduleId]
       setCompletedModules(updated)
-      localStorage.setItem(`course-${params.courseId}-progress`, JSON.stringify(updated))
+      localStorage.setItem(`course-${params.courseId}-completed`, JSON.stringify(updated))
     }
   }
 
@@ -109,7 +105,7 @@ export default function CourseLearningPage({ params }: { params: { courseId: str
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <BookOpen className="w-12 h-12 text-blue-600 animate-bounce mx-auto mb-4" />
           <p className="text-gray-600">Loading course...</p>
         </div>
       </div>
@@ -122,215 +118,150 @@ export default function CourseLearningPage({ params }: { params: { courseId: str
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link href="/courses" className="flex items-center gap-2 text-blue-600 hover:text-blue-700">
-            <ArrowLeft className="w-5 h-5" />
-            <span className="hidden sm:inline">Back to Courses</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <Link href="/dashboard" className="flex items-center text-blue-600 hover:text-blue-700">
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Back to Dashboard
           </Link>
-
-          <h1 className="text-lg sm:text-xl font-bold text-blue-900 text-center flex-1 px-4 truncate">
-            {courseData.title}
-          </h1>
-
+          <h1 className="text-2xl font-bold text-blue-900">{courseData.title}</h1>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="sm:hidden p-2 hover:bg-blue-100 rounded-lg"
+            className="md:hidden text-gray-600 hover:text-gray-900"
           >
-            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
-
-          <div className="hidden sm:flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <Volume2 className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">English</span>
-            </Button>
-            <Button variant="ghost" size="sm">
-              <Settings className="w-4 h-4" />
-            </Button>
-          </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex gap-6">
-        {/* Sidebar - Course Modules */}
-        <div
-          className={`${
-            sidebarOpen ? 'block' : 'hidden'
-          } sm:block w-full sm:w-80 flex-shrink-0 bg-white rounded-lg shadow-sm p-6 h-fit sm:sticky sm:top-24`}
-        >
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-bold text-blue-900">Course Progress</h3>
-              <span className="text-sm font-semibold text-blue-600">{progressPercentage}%</span>
-            </div>
-            <Progress value={progressPercentage} className="h-2" />
-            <p className="text-xs text-gray-600 mt-2">
-              {completedModules.length} of {courseData.modules.length} modules completed
-            </p>
-          </div>
-
-          <div className="space-y-2 max-h-96 overflow-y-auto">
-            {courseData.modules.map((module, index) => (
-              <button
-                key={module.id}
-                onClick={() => {
-                  setCurrentModule(index)
-                  setSidebarOpen(false)
-                }}
-                className={`w-full text-left p-3 rounded-lg transition ${
-                  index === currentModule
-                    ? 'bg-blue-100 border-2 border-blue-500'
-                    : 'hover:bg-blue-50 border-2 border-transparent'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  {completedModules.includes(module.id) ? (
-                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0 mt-0.5" />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-blue-900 truncate">Module {index + 1}</p>
-                    <p className="text-xs text-gray-600 truncate">{module.title}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      {(module.type === 'quiz' || module.type === 'project') && (
-                        <Badge 
-                          variant="outline" 
-                          className={`text-xs ${
-                            module.type === 'quiz' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
-                          }`}
-                        >
-                          {module.type === 'quiz' ? '📝 Quiz' : '🚀 Project'}
-                        </Badge>
-                      )}
-                      <span className="text-xs text-gray-500">{module.duration}</span>
-                    </div>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="flex-1">
-          <Card className="glass-card-light shadow-lg mb-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* Sidebar */}
+        <div className={`${sidebarOpen ? 'block' : 'hidden'} md:block md:col-span-1`}>
+          <Card className="sticky top-24">
             <CardHeader>
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge className="premium-button">
-                      {courseData.modules[currentModule].type}
-                    </Badge>
-                    <span className="text-sm text-gray-600">
-                      Module {currentModule + 1} of {courseData.modules.length}
-                    </span>
-                  </div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-blue-900">
-                    {courseData.modules[currentModule].title}
-                  </h2>
-                  <p className="text-blue-700 mt-2">{courseData.modules[currentModule].description}</p>
-                </div>
-              </div>
+              <CardTitle className="text-lg">Course Progress</CardTitle>
             </CardHeader>
-          </Card>
-
-          {/* Video/Content Area */}
-          <Card className="glass-card-light shadow-lg mb-6 overflow-hidden">
-            <div className="aspect-video bg-gradient-to-br from-blue-900 to-purple-900 flex items-center justify-center">
-              <div className="text-center text-white">
-                <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p className="text-lg font-semibold">Module Content</p>
-                <p className="text-sm opacity-75 mt-2">Video player will display here</p>
-              </div>
-            </div>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2 text-blue-700 mb-4">
-                <Clock className="w-5 h-5" />
-                <span className="font-semibold">{courseData.modules[currentModule].duration}</span>
-                <span className="text-sm">Estimated completion time</span>
-              </div>
-              <p className="text-gray-700 mb-6">
-                In this module, you will learn the fundamentals and best practices. Take your time to understand each concept
-                before moving forward.
-              </p>
-
-              <div className="space-y-4">
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                  <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-yellow-500" />
-                    Learning Tip
-                  </h4>
-                  <p className="text-sm text-blue-800">
-                    Take notes while watching. This helps retain information and creates a quick reference guide.
-                  </p>
+            <CardContent className="space-y-4">
+              <div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">Overall Progress</span>
+                  <span className="text-sm font-bold text-blue-600">{progressPercentage}%</span>
                 </div>
+                <Progress value={progressPercentage} className="h-2" />
+              </div>
 
-                <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-                  <h4 className="font-semibold text-purple-900 mb-2 flex items-center gap-2">
-                    <Award className="w-5 h-5 text-purple-600" />
-                    What You&apos;ll Learn
-                  </h4>
-                  <ul className="text-sm text-purple-800 space-y-1">
-                    <li>• Core concepts and terminology</li>
-                    <li>• Practical implementation techniques</li>
-                    <li>• Real-world applications</li>
-                    <li>• Best practices and tips</li>
-                  </ul>
-                </div>
+              <div className="space-y-2">
+                <h3 className="font-semibold text-gray-900 text-sm">Modules</h3>
+                {courseData.modules.map((module, idx) => (
+                  <button
+                    key={module.id}
+                    onClick={() => {
+                      setCurrentModule(idx)
+                      setSidebarOpen(false)
+                    }}
+                    className={`w-full text-left p-3 rounded-lg transition ${
+                      currentModule === idx
+                        ? 'bg-blue-100 border-l-4 border-blue-600'
+                        : 'hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className="flex items-start gap-2">
+                      {completedModules.includes(module.id) ? (
+                        <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      ) : (
+                        <div className="w-5 h-5 border-2 border-gray-300 rounded-full flex-shrink-0 mt-0.5" />
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{module.title}</p>
+                        <p className="text-xs text-gray-500">{module.duration}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
               </div>
             </CardContent>
           </Card>
+        </div>
 
-          {/* Navigation Buttons */}
-          <div className="flex gap-4 justify-between">
-            <Button
-              variant="outline"
-              onClick={() => setCurrentModule(Math.max(0, currentModule - 1))}
-              disabled={currentModule === 0}
-              className="flex-1"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Previous
-            </Button>
+        {/* Main Content */}
+        <div className="md:col-span-3">
+          {courseData.modules[currentModule] && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                      {courseData.modules[currentModule].title}
+                    </h2>
+                    <p className="text-gray-600">{courseData.modules[currentModule].description}</p>
+                  </div>
+                  {completedModules.includes(courseData.modules[currentModule].id) && (
+                    <Badge className="bg-green-100 text-green-700">Completed</Badge>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg">
+                  <Clock className="w-5 h-5 text-blue-600" />
+                  <span className="text-gray-700">{courseData.modules[currentModule].duration}</span>
+                </div>
 
-            {!completedModules.includes(courseData.modules[currentModule].id) ? (
-              <Button
-                onClick={() => handleModuleComplete(courseData.modules[currentModule].id)}
-                className="premium-button flex-1"
-              >
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                Mark as Complete
-              </Button>
-            ) : (
-              <Button variant="secondary" disabled className="flex-1">
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                Completed
-              </Button>
-            )}
+                <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-8 min-h-60 flex items-center justify-center border-2 border-dashed border-gray-300">
+                  <div className="text-center">
+                    <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-4">Module content would be displayed here</p>
+                    <p className="text-sm text-gray-500">
+                      {courseData.modules[currentModule].type === 'video'
+                        ? 'Video player will be embedded'
+                        : courseData.modules[currentModule].type === 'quiz'
+                        ? 'Interactive quiz interface'
+                        : 'Interactive lesson content'}
+                    </p>
+                  </div>
+                </div>
 
-            <Button
-              onClick={() => setCurrentModule(Math.min(courseData.modules.length - 1, currentModule + 1))}
-              disabled={currentModule === courseData.modules.length - 1}
-              className="flex-1"
-            >
-              Next
-              <ChevronRight className="w-4 h-4 ml-2" />
-            </Button>
-          </div>
+                <div className="flex gap-4">
+                  <Button
+                    onClick={() => setCurrentModule(Math.max(0, currentModule - 1))}
+                    disabled={currentModule === 0}
+                    variant="outline"
+                  >
+                    Previous Module
+                  </Button>
 
-          {/* Completion Message */}
-          {currentModule === courseData.modules.length - 1 && completedModules.length === courseData.modules.length && (
-            <Card className="glass-card-light border-2 border-green-500 shadow-lg mt-6 bg-green-50">
-              <CardContent className="p-6 text-center">
-                <Award className="w-12 h-12 text-green-600 mx-auto mb-3" />
-                <h3 className="text-2xl font-bold text-green-900 mb-2">Course Completed! 🎉</h3>
-                <p className="text-green-700 mb-4">Congratulations! You&apos;ve successfully completed this course.</p>
-                <Button className="premium-button">
-                  Download Certificate
-                </Button>
+                  {!completedModules.includes(courseData.modules[currentModule].id) && (
+                    <Button
+                      onClick={() => handleModuleComplete(courseData.modules[currentModule].id)}
+                      className="premium-button flex-1"
+                    >
+                      Mark as Complete
+                      <CheckCircle2 className="w-4 h-4 ml-2" />
+                    </Button>
+                  )}
+
+                  <Button
+                    onClick={() => setCurrentModule(Math.min(courseData.modules.length - 1, currentModule + 1))}
+                    disabled={currentModule === courseData.modules.length - 1}
+                  >
+                    Next Module
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+
+                {progressPercentage === 100 && (
+                  <div className="p-4 bg-green-50 border-l-4 border-green-600 rounded">
+                    <h3 className="font-semibold text-green-900 mb-2">Course Completed!</h3>
+                    <p className="text-green-700 text-sm mb-4">
+                      Congratulations! You have completed all modules. You can now pursue certification or diploma.
+                    </p>
+                    <Link href="/dashboard">
+                      <Button className="premium-button">
+                        <Award className="w-4 h-4 mr-2" />
+                        View Certification Options
+                      </Button>
+                    </Link>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}

@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { MotivationalPopup } from "@/components/motivational-popup"
 import { ProtectedRoute } from "@/components/protected-route"
+import { NotificationsCenter } from "@/components/notifications-center"
 import {
   BookOpen,
   LogOut,
@@ -77,9 +78,9 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full overflow-hidden shadow-lg flex-shrink-0 bg-gradient-to-br from-purple-400 to-blue-600">
+              <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full overflow-hidden shadow-lg flex-shrink-0 bg-white border-2 border-gray-100">
                 <img
-                  src="/edusanna-logo.png"
+                  src="/edusanna-logo-new.png"
                   alt="Edusanna Logo"
                   className="w-10 h-10 sm:w-14 sm:h-14 object-cover"
                 />
@@ -93,6 +94,12 @@ export default function DashboardPage() {
               <Link href="/courses">
                 <Button variant="ghost" className="text-gray-700 hover:text-purple-600">
                   Browse Courses
+                </Button>
+              </Link>
+              <NotificationsCenter />
+              <Link href="/dashboard/settings">
+                <Button variant="ghost" className="text-gray-700 hover:text-blue-600">
+                  Settings
                 </Button>
               </Link>
               <Button variant="ghost" className="text-gray-700 hover:text-red-600">
