@@ -67,29 +67,25 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Link>
-          <div className="flex flex-col items-center justify-center gap-3 mb-6">
-            <div className="w-28 h-28 rounded-full overflow-hidden shadow-lg">
+        <div className="text-center mb-6">
+          <div className="flex flex-col items-center justify-center gap-2 mb-4">
+            <div className="w-20 h-20 rounded-full overflow-hidden shadow-lg bg-white border-2 border-gray-100">
               <img
-                src="/edusanna-logo.png"
+                src="/edusanna-logo-new.png"
                 alt="Edusanna Logo"
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="text-center">
-              <h2 className="text-2xl font-bold gradient-text">EDUSANNA</h2>
-              <p className="text-sm text-blue-600">Elevate Your Mind</p>
+              <h2 className="text-xl font-bold gradient-text">EDUSANNA</h2>
+              <p className="text-xs text-blue-600">Elevate Your Mind</p>
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-blue-900 mb-2">Create Your Account</h1>
-          <p className="text-blue-700">Join thousands of learners transforming their lives</p>
+          <h1 className="text-xl font-bold text-blue-900 mb-1">Create Your Account</h1>
+          <p className="text-sm text-blue-700">Join thousands of learners transforming their lives</p>
         </div>
 
         {/* Signup Form */}

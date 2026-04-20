@@ -42,9 +42,9 @@ export default function CoursesPage() {
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-6">
               <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition transform hover:scale-105 min-w-0">
-                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full overflow-hidden shadow-lg glow-blue flex-shrink-0">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full overflow-hidden shadow-lg glow-blue flex-shrink-0 bg-white border border-gray-200">
                   <img
-                    src="/edusanna-logo.png"
+                    src="/edusanna-logo-new.png"
                     alt="Edusanna Logo"
                     className="w-full h-full object-cover"
                   />

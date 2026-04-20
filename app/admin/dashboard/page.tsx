@@ -52,9 +52,9 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <Link href="/admin/dashboard" className="flex items-center space-x-3">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden shadow-md bg-gradient-to-br from-purple-400 to-blue-600">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden shadow-md bg-white border-2 border-gray-100">
                 <img
-                  src="/edusanna-logo.png"
+                  src="/edusanna-logo-new.png"
                   alt="Edusanna Logo"
                   className="w-14 h-14 sm:w-16 sm:h-16 object-cover"
                 />
