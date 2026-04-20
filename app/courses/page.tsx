@@ -198,50 +198,74 @@ export default function CoursesPage() {
                   <CardTitle className="text-lg text-gray-800 leading-tight mb-4">{course.certificateTitle}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="p-4 rounded-lg border-2 border-blue-200 bg-blue-50/50 hover:border-blue-400 transition-all">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <GraduationCap className="w-5 h-5 text-blue-600" />
-                        <span className="font-semibold text-gray-800">Certificate</span>
+                  {isLoggedIn ? (
+                    <>
+                      <Link href={`/learn/${course.id}`} className="block">
+                        <Button className="w-full premium-button h-12 text-base font-semibold">
+                          <BookOpen className="w-5 h-5 mr-2" />
+                          Start Learning
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </Link>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="p-3 rounded-lg border-2 border-blue-200 bg-blue-50/50">
+                          <div className="flex items-center gap-1 mb-1">
+                            <GraduationCap className="w-4 h-4 text-blue-600" />
+                            <span className="text-xs font-semibold text-gray-800">Certificate</span>
+                          </div>
+                          <p className="text-xs text-gray-600">5-6 modules</p>
+                        </div>
+                        <div className="p-3 rounded-lg border-2 border-gray-300 bg-gray-50/50">
+                          <div className="flex items-center gap-1 mb-1">
+                            <Award className="w-4 h-4 text-gray-700" />
+                            <span className="text-xs font-semibold text-gray-800">Diploma</span>
+                          </div>
+                          <p className="text-xs text-gray-600">8-10 modules</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600 mb-3">
-                      <Clock className="w-4 h-4 mr-1" />
-                      5-6 modules
-                    </div>
-                    <Link href={`/course/${course.id}/certificate`}>
-                      <Button className="w-full premium-button" size="sm">
-                        View Certificate
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </Link>
-                  </div>
-
-                  <div className="p-4 rounded-lg border-2 border-gray-300 bg-gray-50/50 hover:border-gray-400 transition-all">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Award className="w-5 h-5 text-gray-700" />
-                        <span className="font-semibold text-gray-800">Diploma</span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <p className="text-sm text-gray-700 mb-4 font-semibold">Start Learning Today</p>
+                        <p className="text-xs text-gray-600 mb-4">
+                          Create an account or sign in to enroll in this course and track your progress.
+                        </p>
+                        <div className="flex gap-2">
+                          <Link href="/login" className="flex-1">
+                            <Button variant="outline" className="w-full border-blue-300 text-blue-600" size="sm">
+                              Sign In
+                            </Button>
+                          </Link>
+                          <Link href="/signup" className="flex-1">
+                            <Button className="w-full premium-button" size="sm">
+                              Create Account
+                            </Button>
+                          </Link>
+                        </div>
                       </div>
-                    </div>
-                    <p className="text-xs text-gray-600 mb-2">{course.diplomaTitle}</p>
-                    <div className="flex items-center text-sm text-gray-600 mb-3">
-                      <Clock className="w-4 h-4 mr-1" />
-                      8-10 modules
-                    </div>
-                    <Link href={`/course/${course.id}/diploma`}>
-                      <Button variant="outline" className="w-full bg-white border-gray-300" size="sm">
-                        View Diploma
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </Link>
-                  </div>
+                      <p className="text-xs text-center text-gray-600">Learn for free first. Pay only when you're ready for certification.</p>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             ))}
           </div>
         </div>
       </section>
+
+      {/* Enrollment Modal/Message - Show only for logged-in users */}
+      {isLoggedIn && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 hidden" id="enrollmentModal">
+          <Card className="w-full max-w-md glass-card-light">
+            <CardContent className="p-6 text-center">
+              <h3 className="text-lg font-bold mb-2">Ready to Learn?</h3>
+              <p className="text-gray-600 mb-4">You're enrolled and ready to start this course!</p>
+              <Button className="w-full premium-button">Start Learning</Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }

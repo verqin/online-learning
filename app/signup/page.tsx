@@ -12,6 +12,7 @@ import { BookOpen, ArrowLeft, User, Mail, Phone, MapPin } from "lucide-react"
 import { GoogleSignInButton } from "@/components/auth/google-signin-button"
 
 export default function SignupPage() {
+  const [signupType, setSignupType] = useState<"academia" | "standard" | null>(null)
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -50,6 +51,7 @@ export default function SignupPage() {
     localStorage.setItem("isLoggedIn", "true")
     localStorage.setItem("userEmail", formData.email)
     localStorage.setItem("userName", formData.fullName)
+    localStorage.setItem("signupType", signupType || "standard")
     localStorage.setItem("joinDate", new Date().toISOString().split('T')[0])
     localStorage.setItem("userPhone", formData.mobileNumber)
     localStorage.setItem("userCountry", formData.country)
@@ -88,18 +90,65 @@ export default function SignupPage() {
           <p className="text-sm text-blue-700">Join thousands of learners transforming their lives</p>
         </div>
 
-        {/* Signup Form */}
-        <Card className="glass-card-light shadow-lg border-blue-100">
-          <CardHeader className="text-center pb-4">
-            <CardTitle className="text-xl gradient-text">Get Started Today</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {error && (
-              <div className="mb-4 p-4 bg-red-100 border border-red-400 rounded-lg">
-                <p className="text-red-700 text-sm font-medium">{error}</p>
+        {/* Signup Type Selection */}
+        {!signupType ? (
+          <Card className="glass-card-light shadow-lg border-blue-100">
+            <CardHeader className="text-center pb-4">
+              <CardTitle className="text-xl gradient-text">Choose Your Learning Path</CardTitle>
+              <p className="text-sm text-gray-600 mt-2">Select the option that best fits your goals</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <button
+                onClick={() => setSignupType("academia")}
+                className="w-full p-6 rounded-lg border-2 border-blue-300 bg-blue-50 hover:bg-blue-100 transition-all text-left"
+              >
+                <h3 className="font-bold text-lg text-blue-900 mb-2">Academia Plan</h3>
+                <ul className="text-sm text-gray-700 space-y-1">
+                  <li>✓ Structured learning path</li>
+                  <li>✓ Monthly assignments & feedback</li>
+                  <li>✓ Instructor support included</li>
+                  <li>✓ Academic certificates</li>
+                </ul>
+                <p className="text-xs text-blue-600 font-semibold mt-3">Best for students & professionals</p>
+              </button>
+
+              <button
+                onClick={() => setSignupType("standard")}
+                className="w-full p-6 rounded-lg border-2 border-gray-300 bg-gray-50 hover:bg-gray-100 transition-all text-left"
+              >
+                <h3 className="font-bold text-lg text-gray-900 mb-2">Standard Plan</h3>
+                <ul className="text-sm text-gray-700 space-y-1">
+                  <li>✓ Self-paced learning</li>
+                  <li>✓ Lifetime course access</li>
+                  <li>✓ Free learning materials</li>
+                  <li>✓ Completion certificates</li>
+                </ul>
+                <p className="text-xs text-gray-600 font-semibold mt-3">Best for casual learners</p>
+              </button>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="glass-card-light shadow-lg border-blue-100">
+            <CardHeader className="text-center pb-4">
+              <div className="flex items-center justify-center mb-2">
+                <button
+                  onClick={() => setSignupType(null)}
+                  className="absolute left-6 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  ← Back
+                </button>
+                <CardTitle className="text-xl gradient-text">
+                  {signupType === "academia" ? "Academia" : "Standard"} Sign Up
+                </CardTitle>
               </div>
-            )}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            </CardHeader>
+            <CardContent>
+              {error && (
+                <div className="mb-4 p-4 bg-red-100 border border-red-400 rounded-lg">
+                  <p className="text-red-700 text-sm font-medium">{error}</p>
+                </div>
+              )}
+              <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="fullName" className="flex items-center text-blue-900 mb-2">
                   <User className="w-4 h-4 mr-2" />
@@ -244,6 +293,7 @@ export default function SignupPage() {
             </div>
           </CardContent>
         </Card>
+        )}
       </div>
     </div>
   )
