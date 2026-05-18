@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createCertificate } from '@/lib/supabase-client'
+import { createServerSupabase } from '@/lib/supabase-server'
 
 /**
  * Admin endpoint to manually generate certificates for students
- * POST /api/admin/generate-certificate
- * Body: { userId: string, courseId: string, certificateType: 'certificate' | 'diploma', studentName: string, courseName: string }
- * Returns: { certificateId: string, verificationCode: string }
  */
 export async function POST(request: NextRequest) {
   try {
-    // Verify admin authorization (check session cookie)
+    // Verify admin authorization
     const adminSession = request.cookies.get('admin_session')
     if (!adminSession) {
       return NextResponse.json(
@@ -18,7 +15,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { userId, courseId, certificateType, studentName, courseName } = await request.json()
+    const { userId, courseId, certificateType, studentName, courseName } =
+      await request.json()
 
     // Validate input
     if (!userId || !courseId || !certificateType || !studentName || !courseName) {
@@ -35,10 +33,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create certificate in Supabase
-    const certificateData = await createCertificate(userId, courseId, certificateType as 'certificate' | 'diploma')
+    const supabase = createServerSupabase()
 
-    if (!certificateData) {
+    // Generate verification code
+    const verificationCode = `${courseId}-${userId}-${Date.now()}`
+
+    // Create certificate directly in Supabase
+    const { data, error } = await supabase
+      .from('certificates')
+      .insert([
+        {
+          user_id: userId,
+          course_id: courseId,
+          certificate_type: certificateType,
+          verification_code: verificationCode,
+          issue_date: new Date().toISOString(),
+          is_valid: true,
+        },
+      ])
+      .select()
+
+    if (error) {
+      console.error('[certificate insert error]', error)
       return NextResponse.json(
         { error: 'Failed to create certificate' },
         { status: 500 }
@@ -46,13 +62,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Log admin action
-    console.log(`[v0] Admin generated ${certificateType} for user ${userId} in course ${courseId}`)
+    console.log(
+      `[v0] Admin generated ${certificateType} for user ${userId} in course ${courseId}`
+    )
 
     return NextResponse.json(
       {
         success: true,
-        certificateId: certificateData[0]?.id,
-        verificationCode: certificateData[0]?.verification_code,
+        certificateId: data?.[0]?.id,
+        verificationCode: data?.[0]?.verification_code,
         message: `${certificateType} generated successfully`,
       },
       { status: 200 }
