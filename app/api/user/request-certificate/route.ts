@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = createServerSupabase()
+    const supabase = await createServerSupabase()
 
     // Check enrollment progress
     const { data: enrollment, error: enrollmentError } = await supabase
