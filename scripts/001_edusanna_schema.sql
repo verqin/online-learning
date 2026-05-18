@@ -20,14 +20,19 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 
 -- Create courses table
 CREATE TABLE IF NOT EXISTS public.courses (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  title TEXT NOT NULL,
-  slug TEXT UNIQUE NOT NULL,
-  description TEXT,
-  level TEXT NOT NULL, -- 'certificate' or 'diploma'
-  category TEXT,
-  modules JSONB DEFAULT '[]',
-  exam_questions JSONB DEFAULT '[]',
+  id TEXT PRIMARY KEY,
+  letter TEXT NOT NULL, -- A-Z letter category
+  certificate_title TEXT NOT NULL, -- Course name for certificate
+  diploma_title TEXT NOT NULL, -- Course name for diploma
+  category TEXT NOT NULL, -- Course category
+  icon TEXT, -- Icon name for display
+  color TEXT, -- Gradient color (e.g., 'from-blue-500 to-cyan-500')
+  title TEXT, -- Alternative title field
+  slug TEXT UNIQUE, -- URL-friendly slug
+  description TEXT, -- Course description
+  level TEXT, -- 'certificate' or 'diploma'
+  modules JSONB DEFAULT '[]', -- Course modules/content
+  exam_questions JSONB DEFAULT '[]', -- Exam questions for course
   created_at TIMESTAMP DEFAULT now(),
   updated_at TIMESTAMP DEFAULT now()
 );
@@ -36,7 +41,7 @@ CREATE TABLE IF NOT EXISTS public.courses (
 CREATE TABLE IF NOT EXISTS public.enrollments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  course_id UUID NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
+  course_id TEXT NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
   enrolled_at TIMESTAMP DEFAULT now(),
   started_at TIMESTAMP,
   completed_at TIMESTAMP,
@@ -50,7 +55,7 @@ CREATE TABLE IF NOT EXISTS public.completion_notifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   enrollment_id UUID NOT NULL REFERENCES public.enrollments(id) ON DELETE CASCADE,
-  course_id UUID NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
+  course_id TEXT NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
   full_name TEXT,
   email TEXT,
   country TEXT,
@@ -69,7 +74,7 @@ CREATE TABLE IF NOT EXISTS public.completion_notifications (
 CREATE TABLE IF NOT EXISTS public.user_feedback (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  course_id UUID NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
+  course_id TEXT NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
   rating INT CHECK (rating >= 1 AND rating <= 5),
   feedback_text TEXT,
   can_edit BOOLEAN DEFAULT TRUE,
@@ -101,7 +106,7 @@ CREATE TABLE IF NOT EXISTS public.admin_audit_log (
 CREATE TABLE IF NOT EXISTS public.certificates (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  course_id UUID NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
+  course_id TEXT NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
   certificate_type TEXT NOT NULL, -- 'certificate' or 'diploma'
   verification_code TEXT UNIQUE NOT NULL,
   issue_date TIMESTAMP DEFAULT now(),
@@ -116,7 +121,7 @@ CREATE TABLE IF NOT EXISTS public.certificates (
 CREATE TABLE IF NOT EXISTS public.payments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  course_id UUID REFERENCES public.courses(id) ON DELETE SET NULL,
+  course_id TEXT REFERENCES public.courses(id) ON DELETE SET NULL,
   certificate_id UUID REFERENCES public.certificates(id) ON DELETE SET NULL,
   amount DECIMAL(10, 2) NOT NULL,
   currency TEXT DEFAULT 'USD',
