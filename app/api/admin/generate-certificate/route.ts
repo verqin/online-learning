@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createCertificate } from '@/lib/supabase-client'
+import { issueCertificate } from '@/lib/supabase-client'
 
 /**
  * Admin endpoint to manually generate certificates for students
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create certificate in Supabase
-    const certificateData = await createCertificate(userId, courseId, certificateType as 'certificate' | 'diploma')
+    const certificateData = await issueCertificate(userId, courseId, certificateType as 'certificate' | 'diploma')
 
     if (!certificateData) {
       return NextResponse.json(

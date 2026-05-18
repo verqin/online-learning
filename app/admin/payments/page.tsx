@@ -16,10 +16,12 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+const supabase = supabaseUrl && supabaseAnonKey
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
 
 interface Payment {
   id: string;
@@ -46,6 +48,12 @@ export default function AdminPaymentsPage() {
   useEffect(() => {
     async function loadPayments() {
       try {
+        if (!supabase) {
+          setError('Database connection unavailable');
+          setLoading(false);
+          return;
+        }
+
         // Check if user is admin
         const {
           data: { user },

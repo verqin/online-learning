@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createCertificate, getUserProgress } from '@/lib/supabase-client'
+import { issueCertificate, getUserProgress } from '@/lib/supabase-client'
 
 /**
  * Learner endpoint to request certificate/diploma after course completion
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create certificate
-    const certificateData = await createCertificate(userId, courseId, certificateType as 'certificate' | 'diploma')
+    const certificateData = await issueCertificate(userId, courseId, certificateType as 'certificate' | 'diploma')
 
     if (!certificateData) {
       return NextResponse.json(
@@ -59,8 +59,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        certificateId: certificateData[0]?.id,
-        verificationCode: certificateData[0]?.verification_code,
+        certificateId: certificateData?.id,
+        verificationCode: certificateData?.verification_code,
         message: `${certificateType} created successfully`,
       },
       { status: 200 }

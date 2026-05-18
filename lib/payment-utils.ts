@@ -1,9 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+const supabase = supabaseUrl && supabaseAnonKey
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
+
+function getSupabaseClient() {
+  if (!supabase) {
+    throw new Error('Supabase client not initialized. Check environment variables.');
+  }
+  return supabase;
+}
 
 /**
  * Generate a unique certificate ID
@@ -26,8 +35,9 @@ export async function checkDuplicatePayment(
   certificateType: 'certificate' | 'diploma'
 ) {
   try {
-    const { data, error } = await supabase
-      .from('certificate_payments')
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      getSupabaseClient().from('certificate_payments')
       .select('id')
       .eq('user_id', userId)
       .eq('course_id', courseId)
@@ -58,7 +68,7 @@ export async function storePaymentRecord(paymentData: {
 }) {
   try {
     const { data, error } = await supabase
-      .from('certificate_payments')
+      getSupabaseClient().from('certificate_payments')
       .insert([
         {
           ...paymentData,
@@ -82,7 +92,7 @@ export async function storePaymentRecord(paymentData: {
 export async function getCompletedCourses(userId: string) {
   try {
     const { data, error } = await supabase
-      .from('user_progress')
+      getSupabaseClient().from('user_progress')
       .select('course_id, progress')
       .eq('user_id', userId)
       .eq('progress', 100);
@@ -101,7 +111,7 @@ export async function getCompletedCourses(userId: string) {
 export async function getCourseDetails(courseId: string) {
   try {
     const { data, error } = await supabase
-      .from('courses')
+      getSupabaseClient().from('courses')
       .select('id, name, type, description, skills')
       .eq('id', courseId)
       .single();
@@ -120,7 +130,7 @@ export async function getCourseDetails(courseId: string) {
 export async function getUserPayments(userId: string) {
   try {
     const { data, error } = await supabase
-      .from('certificate_payments')
+      getSupabaseClient().from('certificate_payments')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
@@ -142,7 +152,7 @@ export async function updatePaymentStatus(
 ) {
   try {
     const { data, error } = await supabase
-      .from('certificate_payments')
+      getSupabaseClient().from('certificate_payments')
       .update({ payment_status: status })
       .eq('id', paymentId)
       .select();
@@ -161,7 +171,7 @@ export async function updatePaymentStatus(
 export async function getPendingPayments() {
   try {
     const { data, error } = await supabase
-      .from('certificate_payments')
+      getSupabaseClient().from('certificate_payments')
       .select('*')
       .in('payment_status', ['paid_pending_admin', 'noted'])
       .order('created_at', { ascending: false });
