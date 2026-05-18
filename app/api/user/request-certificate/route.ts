@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabase } from '@/lib/supabase-server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
-/**
- * Learner endpoint to request certificate/diploma after course completion
- * POST /api/user/request-certificate
- */
 export async function POST(request: NextRequest) {
   try {
-    // Get user ID from session/header
+    // Get user ID from request header
     const userId = request.headers.get('x-user-id')
 
     if (!userId) {
@@ -17,6 +14,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Parse request body
     const { courseId, certificateType } = await request.json()
 
     // Validate input
@@ -34,7 +32,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = await createServerSupabase()
+    // Create Supabase server client
+    const cookieStore = cookies()
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set() {},
+          remove() {},
+        },
+      }
+    )
 
     // Check enrollment progress
     const { data: enrollment, error: enrollmentError } = await supabase
@@ -51,7 +64,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Ensure course completion requirement
+    // Ensure 80% completion
     if ((enrollment.progress || 0) < 80) {
       return NextResponse.json(
         { error: 'Course completion required (80% progress minimum)' },
@@ -62,7 +75,7 @@ export async function POST(request: NextRequest) {
     // Generate verification code
     const verificationCode = `${courseId}-${userId}-${Date.now()}`
 
-    // Create certificate directly in Supabase
+    // Insert certificate
     const { data, error } = await supabase
       .from('certificates')
       .insert([
@@ -85,10 +98,6 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
-
-    console.log(
-      `[v0] User ${userId} requested ${certificateType} for course ${courseId}`
-    )
 
     return NextResponse.json(
       {
