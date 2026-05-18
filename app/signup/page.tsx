@@ -25,11 +25,19 @@ export default function SignupPage() {
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [termsAccepted, setTermsAccepted] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setIsLoading(true)
+
+    // Validate terms are accepted
+    if (!termsAccepted) {
+      setError("You must agree to the Privacy Policy and Terms of Use")
+      setIsLoading(false)
+      return
+    }
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
@@ -280,7 +288,27 @@ export default function SignupPage() {
                 </div>
               </div>
 
-              <Button type="submit" disabled={isLoading} className="w-full premium-button h-12 text-lg mt-6">
+              <div className="flex items-start gap-3 mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <input
+                  type="checkbox"
+                  id="terms"
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  className="w-5 h-5 mt-1 rounded border-blue-300 text-blue-600 focus:ring-blue-500 cursor-pointer flex-shrink-0"
+                />
+                <label htmlFor="terms" className="text-sm text-blue-900 cursor-pointer">
+                  I agree to the{" "}
+                  <Link href="/privacy" className="text-blue-600 hover:text-blue-700 font-semibold underline">
+                    Privacy Policy
+                  </Link>
+                  {" "}and{" "}
+                  <Link href="/terms" className="text-blue-600 hover:text-blue-700 font-semibold underline">
+                    Terms of Use
+                  </Link>
+                </label>
+              </div>
+
+              <Button type="submit" disabled={isLoading || !termsAccepted} className="w-full premium-button h-12 text-lg mt-6">
                 {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
