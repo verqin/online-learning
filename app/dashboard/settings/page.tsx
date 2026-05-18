@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -18,7 +18,7 @@ export default function SettingsPage() {
   const [deleteSuccess, setDeleteSuccess] = useState(false)
 
   // Get user email from localStorage
-  React.useEffect(() => {
+  useEffect(() => {
     const email = localStorage.getItem('userEmail') || ''
     setUserEmail(email)
   }, [])
