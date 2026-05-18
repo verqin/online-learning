@@ -44,27 +44,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Learner authentication (would connect to Supabase in production)
-    // For now, accept any non-admin credentials and treat as learner signup/login
-    if (email && password.length >= 8) {
-      console.log('[v0] Learner login successful for:', email)
-      return NextResponse.json(
-        {
-          success: true,
-          isAdmin: false,
-          email: email,
-          userName: email.split('@')[0], // Extract name from email
-          message: 'Login successful',
-        },
-        { status: 200 }
-      )
-    }
-
-    // Invalid credentials
-    console.log('[v0] Login failed for:', email)
+    // Learner authentication via Supabase
+    // Note: In production, learner auth should be handled via Supabase client
+    // This API is primarily for admin login with 2FA
+    // Learners use Supabase built-in auth on the client side
+    
+    console.log('[v0] Non-admin login attempt - should use Supabase client auth')
     return NextResponse.json(
-      { error: 'Invalid email or password' },
-      { status: 401 }
+      { 
+        error: 'Use Supabase client authentication for learner login',
+        isAdmin: false 
+      },
+      { status: 400 }
     )
   } catch (error) {
     console.error('[v0] Login error:', error)

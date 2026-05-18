@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { BookOpen, ArrowLeft, User, Mail, Phone, MapPin } from "lucide-react"
+import { BookOpen, ArrowLeft, User, Mail, Phone, MapPin, Building2 } from "lucide-react"
 import { GoogleSignInButton } from "@/components/auth/google-signin-button"
 
 export default function SignupPage() {
   const [signupType, setSignupType] = useState<"academia" | "standard" | null>(null)
   const [formData, setFormData] = useState({
     fullName: "",
+    schoolName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -52,6 +53,9 @@ export default function SignupPage() {
     localStorage.setItem("userEmail", formData.email)
     localStorage.setItem("userName", formData.fullName)
     localStorage.setItem("signupType", signupType || "standard")
+    if (signupType === "academia" && formData.schoolName) {
+      localStorage.setItem("userSchoolName", formData.schoolName)
+    }
     localStorage.setItem("joinDate", new Date().toISOString().split('T')[0])
     localStorage.setItem("userPhone", formData.mobileNumber)
     localStorage.setItem("userCountry", formData.country)
@@ -98,32 +102,22 @@ export default function SignupPage() {
               <p className="text-sm text-gray-600 mt-2">Select the option that best fits your goals</p>
             </CardHeader>
             <CardContent className="space-y-4">
-              <button
-                onClick={() => setSignupType("academia")}
-                className="w-full p-6 rounded-lg border-2 border-blue-300 bg-blue-50 hover:bg-blue-100 transition-all text-left"
-              >
-                <h3 className="font-bold text-lg text-blue-900 mb-2">Academia Plan</h3>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li>✓ Structured learning path</li>
-                  <li>✓ Monthly assignments & feedback</li>
-                  <li>✓ Instructor support included</li>
-                  <li>✓ Academic certificates</li>
-                </ul>
-                <p className="text-xs text-blue-600 font-semibold mt-3">Best for students & professionals</p>
-              </button>
-
+              {/* STANDARD Button - First */}
               <button
                 onClick={() => setSignupType("standard")}
-                className="w-full p-6 rounded-lg border-2 border-gray-300 bg-gray-50 hover:bg-gray-100 transition-all text-left"
+                className="w-full p-6 rounded-lg border-2 border-gray-400 bg-white hover:bg-gray-50 transition-all text-center group"
               >
-                <h3 className="font-bold text-lg text-gray-900 mb-2">Standard Plan</h3>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li>✓ Self-paced learning</li>
-                  <li>✓ Lifetime course access</li>
-                  <li>✓ Free learning materials</li>
-                  <li>✓ Completion certificates</li>
-                </ul>
-                <p className="text-xs text-gray-600 font-semibold mt-3">Best for casual learners</p>
+                <h3 className="font-bold text-2xl text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">STANDARD</h3>
+                <p className="text-sm text-gray-600 font-semibold">For Standard Users</p>
+              </button>
+
+              {/* ACADEMIA Button - Second */}
+              <button
+                onClick={() => setSignupType("academia")}
+                className="w-full p-6 rounded-lg border-2 border-blue-400 bg-white hover:bg-blue-50 transition-all text-center group"
+              >
+                <h3 className="font-bold text-2xl text-blue-900 mb-2 group-hover:text-blue-700 transition-colors">ACADEMIA</h3>
+                <p className="text-sm text-blue-600 font-semibold">Best For Contracted Schools</p>
               </button>
             </CardContent>
           </Card>
@@ -165,6 +159,25 @@ export default function SignupPage() {
                   placeholder="Enter your full name"
                 />
               </div>
+
+              {signupType === "academia" && (
+                <div>
+                  <Label htmlFor="schoolName" className="flex items-center text-blue-900 mb-2">
+                    <Building2 className="w-4 h-4 mr-2" />
+                    School/Institution Name
+                  </Label>
+                  <Input
+                    id="schoolName"
+                    name="schoolName"
+                    type="text"
+                    required={signupType === "academia"}
+                    value={formData.schoolName}
+                    onChange={handleChange}
+                    className="h-12 border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter your school or institution name"
+                  />
+                </div>
+              )}
 
               <div>
                 <Label htmlFor="email" className="flex items-center text-blue-900 mb-2">

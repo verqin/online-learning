@@ -17,6 +17,7 @@ export default function LoginPage() {
     password: "",
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -66,6 +67,7 @@ export default function LoginPage() {
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError("") // Clear error when user types
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -100,6 +102,11 @@ export default function LoginPage() {
             <CardTitle className="text-xl gradient-text">Sign In to Your Account</CardTitle>
           </CardHeader>
           <CardContent>
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-700 text-sm font-medium">{error}</p>
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <Label htmlFor="email" className="flex items-center text-blue-900 mb-2">
