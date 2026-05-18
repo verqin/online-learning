@@ -6,11 +6,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
-import { ArrowLeft, Download, Eye, Loader2 } from 'lucide-react'
+import { ArrowLeft, Download, Eye, Loader2, Mail, Check } from 'lucide-react'
 
 export default function SampleCertificateGeneratorPage() {
   const [formData, setFormData] = useState({
     studentName: 'John Doe',
+    studentEmail: 'student@example.com',
     courseName: 'Web Development Fundamentals',
     certificateType: 'certificate',
     completionDate: new Date().toISOString().split('T')[0],
@@ -21,6 +22,9 @@ export default function SampleCertificateGeneratorPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
+  const [isSending, setIsSending] = useState(false)
+  const [sendStatus, setSendStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [sendMessage, setSendMessage] = useState('')
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -86,6 +90,49 @@ export default function SampleCertificateGeneratorPage() {
     }
   }
 
+  const sendCertificateEmail = async () => {
+    if (!formData.studentEmail) {
+      alert('Please enter student email address')
+      return
+    }
+
+    setIsSending(true)
+    setSendStatus('idle')
+    setSendMessage('')
+
+    try {
+      const response = await fetch('/api/certificates/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentName: formData.studentName,
+          studentEmail: formData.studentEmail,
+          courseName: formData.courseName,
+          certificateType: formData.certificateType,
+          certificateId: formData.certificateId,
+          completionDate: formData.completionDate,
+          skills: formData.skills,
+        }),
+      })
+
+      if (response.ok) {
+        setSendStatus('success')
+        setSendMessage(`Certificate sent successfully to ${formData.studentEmail}`)
+        setTimeout(() => setSendStatus('idle'), 5000)
+      } else {
+        const errorData = await response.json()
+        setSendStatus('error')
+        setSendMessage(errorData.error || 'Failed to send certificate')
+      }
+    } catch (error) {
+      console.error('Error sending certificate:', error)
+      setSendStatus('error')
+      setSendMessage('Error sending certificate. Please try again.')
+    } finally {
+      setIsSending(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
@@ -112,6 +159,18 @@ export default function SampleCertificateGeneratorPage() {
                   onChange={handleChange}
                   className="border-blue-200 focus:border-blue-500"
                   placeholder="Enter student name"
+                />
+              </div>
+
+              <div>
+                <Label className="text-blue-900 font-medium">Student Email</Label>
+                <Input
+                  name="studentEmail"
+                  type="email"
+                  value={formData.studentEmail}
+                  onChange={handleChange}
+                  className="border-blue-200 focus:border-blue-500"
+                  placeholder="Enter student email"
                 />
               </div>
 
@@ -178,38 +237,71 @@ export default function SampleCertificateGeneratorPage() {
                 </div>
               )}
 
-              <div className="flex gap-3 pt-4">
+              {sendStatus !== 'idle' && (
+                <div className={`p-3 rounded-lg text-sm ${
+                  sendStatus === 'success' 
+                    ? 'bg-green-50 border border-green-200 text-green-700' 
+                    : 'bg-red-50 border border-red-200 text-red-700'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    {sendStatus === 'success' && <Check className="w-4 h-4" />}
+                    {sendMessage}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-3 pt-4">
+                <div className="flex gap-3">
+                  <Button
+                    onClick={generatePreview}
+                    disabled={isGenerating}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="w-4 h-4 mr-2" />
+                        Preview
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    onClick={downloadCertificate}
+                    disabled={isDownloading || !previewUrl}
+                    className="flex-1 premium-button"
+                  >
+                    {isDownloading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Downloading...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4 mr-2" />
+                        Download PDF
+                      </>
+                    )}
+                  </Button>
+                </div>
+
                 <Button
-                  onClick={generatePreview}
-                  disabled={isGenerating}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={sendCertificateEmail}
+                  disabled={isSending || !previewUrl}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
                 >
-                  {isGenerating ? (
+                  {isSending ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Generating...
+                      Sending...
                     </>
                   ) : (
                     <>
-                      <Eye className="w-4 h-4 mr-2" />
-                      Preview
-                    </>
-                  )}
-                </Button>
-                <Button
-                  onClick={downloadCertificate}
-                  disabled={isDownloading || !previewUrl}
-                  className="flex-1 premium-button"
-                >
-                  {isDownloading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Downloading...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-4 h-4 mr-2" />
-                      Download PDF
+                      <Mail className="w-4 h-4 mr-2" />
+                      Send Certificate via Email
                     </>
                   )}
                 </Button>
