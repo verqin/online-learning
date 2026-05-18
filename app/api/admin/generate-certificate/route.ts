@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = createServerSupabase()
+    const supabase = await createServerSupabase()
 
     // Generate verification code
     const verificationCode = `${courseId}-${userId}-${Date.now()}`
