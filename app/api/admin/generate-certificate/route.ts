@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { issueCertificate } from '@/lib/supabase-client'
+import { createServerSupabase } from '@/lib/supabase-server'
 
-/**
- * Admin endpoint to manually generate certificates for students
- * POST /api/admin/generate-certificate
- * Body: { userId: string, courseId: string, certificateType: 'certificate' | 'diploma', studentName: string, courseName: string }
- * Returns: { certificateId: string, verificationCode: string }
- */
 export async function POST(request: NextRequest) {
   try {
-    // Verify admin authorization (check session cookie)
+    // 1. Admin auth check
     const adminSession = request.cookies.get('admin_session')
+
     if (!adminSession) {
       return NextResponse.json(
         { error: 'Unauthorized - admin access required' },
@@ -18,9 +13,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { userId, courseId, certificateType, studentName, courseName } = await request.json()
+    // 2. Parse request
+    const { userId, courseId, certificateType, studentName, courseName } =
+      await request.json()
 
-    // Validate input
+    // 3. Validate input
     if (!userId || !courseId || !certificateType || !studentName || !courseName) {
       return NextResponse.json(
         { error: 'Missing required fields' },
@@ -28,39 +25,60 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!['certificate', 'diploma'].includes(certificateType)) {
+    if (certificateType !== 'certificate' && certificateType !== 'diploma') {
       return NextResponse.json(
         { error: 'Invalid certificate type' },
         { status: 400 }
       )
     }
 
-    // Create certificate in Supabase
-    const certificateData = await issueCertificate(userId, courseId, certificateType as 'certificate' | 'diploma')
+    // 4. Create Supabase server client (IMPORTANT FIX)
+    const supabase = createServerSupabase()
 
-    if (!certificateData) {
+    // 5. Generate verification code
+    const verificationCode = `${courseId}-${userId}-${Date.now()}`
+
+    // 6. Insert certificate
+    const { data, error } = await supabase
+      .from('certificates')
+      .insert([
+        {
+          user_id: userId,
+          course_id: courseId,
+          certificate_type: certificateType,
+          verification_code: verificationCode,
+          issue_date: new Date().toISOString(),
+          is_valid: true,
+        },
+      ])
+      .select()
+
+    if (error) {
+      console.error('[certificate insert error]', error)
+
       return NextResponse.json(
         { error: 'Failed to create certificate' },
         { status: 500 }
       )
     }
 
-    // Log admin action
-    console.log(`[v0] Admin generated ${certificateType} for user ${userId} in course ${courseId}`)
+    // 7. Log
+    console.log(
+      `[ADMIN] Generated ${certificateType} for user ${userId} in course ${courseId}`
+    )
+
+    // 8. Response
+    return NextResponse.json({
+      success: true,
+      certificateId: data?.[0]?.id,
+      verificationCode: data?.[0]?.verification_code,
+      message: `${certificateType} generated successfully`,
+    })
+  } catch (error) {
+    console.error('[admin certificate error]', error)
 
     return NextResponse.json(
-      {
-        success: true,
-        certificateId: certificateData[0]?.id,
-        verificationCode: certificateData[0]?.verification_code,
-        message: `${certificateType} generated successfully`,
-      },
-      { status: 200 }
-    )
-  } catch (error) {
-    console.error('[v0] Error in admin certificate generation:', error)
-    return NextResponse.json(
-      { error: 'Failed to generate certificate' },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }

@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { issueCertificate, getUserProgress } from '@/lib/supabase-client'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
-/**
- * Learner endpoint to request certificate/diploma after course completion
- * POST /api/user/request-certificate
- * Body: { courseId: string, certificateType: 'certificate' | 'diploma' }
- * Returns: { success: boolean, certificateId: string }
- */
 export async function POST(request: NextRequest) {
   try {
-    // Get user ID from session or header
+    // Get user ID from request header
     const userId = request.headers.get('x-user-id')
+
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized - user ID required' },
@@ -18,6 +14,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Parse request body
     const { courseId, certificateType } = await request.json()
 
     // Validate input
@@ -35,38 +32,85 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user has completed the course (at least 80% progress)
-    const progress = await getUserProgress(userId, courseId)
-    if (!progress || progress.progress_percentage < 80) {
+    // Create Supabase server client
+    const cookieStore = cookies()
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set() {},
+          remove() {},
+        },
+      }
+    )
+
+    // Check enrollment progress
+    const { data: enrollment, error: enrollmentError } = await supabase
+      .from('enrollments')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('course_id', courseId)
+      .single()
+
+    if (enrollmentError || !enrollment) {
+      return NextResponse.json(
+        { error: 'Enrollment not found' },
+        { status: 404 }
+      )
+    }
+
+    // Ensure 80% completion
+    if ((enrollment.progress || 0) < 80) {
       return NextResponse.json(
         { error: 'Course completion required (80% progress minimum)' },
         { status: 400 }
       )
     }
 
-    // Create certificate
-    const certificateData = await issueCertificate(userId, courseId, certificateType as 'certificate' | 'diploma')
+    // Generate verification code
+    const verificationCode = `${courseId}-${userId}-${Date.now()}`
 
-    if (!certificateData) {
+    // Insert certificate
+    const { data, error } = await supabase
+      .from('certificates')
+      .insert([
+        {
+          user_id: userId,
+          course_id: courseId,
+          certificate_type: certificateType,
+          verification_code: verificationCode,
+          issue_date: new Date().toISOString(),
+          is_valid: true,
+        },
+      ])
+      .select()
+
+    if (error) {
+      console.error('[certificate insert error]', error)
+
       return NextResponse.json(
         { error: 'Failed to create certificate' },
         { status: 500 }
       )
     }
 
-    console.log(`[v0] User ${userId} requested ${certificateType} for course ${courseId}`)
-
     return NextResponse.json(
       {
         success: true,
-        certificateId: certificateData?.id,
-        verificationCode: certificateData?.verification_code,
+        certificateId: data?.[0]?.id,
+        verificationCode: data?.[0]?.verification_code,
         message: `${certificateType} created successfully`,
       },
       { status: 200 }
     )
   } catch (error) {
     console.error('[v0] Error in certificate request:', error)
+
     return NextResponse.json(
       { error: 'Failed to create certificate' },
       { status: 500 }
