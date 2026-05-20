@@ -5,8 +5,23 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey)
+// Only initialize if we have the URL and anon key
+// supabaseAdmin will only be available at runtime with service role key
+export const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null
+
+export const supabaseAdmin = supabaseUrl && supabaseServiceRoleKey
+  ? createClient(supabaseUrl, supabaseServiceRoleKey)
+  : null
+
+// Helper function to ensure supabase is initialized
+function getSupabaseClient() {
+  if (!supabase) {
+    throw new Error('Supabase client not initialized. Check environment variables.')
+  }
+  return supabase
+}
 
 /**
  * User Profile Management Functions
@@ -15,7 +30,8 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey)
 
 export async function getProfileByUserId(userId: string) {
   try {
-    const { data, error } = await supabase
+    const client = getSupabaseClient()
+    const { data, error } = await client
       .from('profiles')
       .select('*')
       .eq('id', userId)
@@ -126,7 +142,8 @@ export async function updateProfile(userId: string, updates: Partial<any>) {
 
 export async function getCourses(limit?: number) {
   try {
-    let query = supabase.from('courses').select('*')
+    const client = getSupabaseClient()
+    let query = client.from('courses').select('*')
 
     if (limit) {
       query = query.limit(limit)
@@ -281,6 +298,36 @@ export async function completeEnrollment(enrollmentId: string, examScore: number
     return data?.[0]
   } catch (error) {
     console.error('[v0] Error in completeEnrollment:', error)
+    return null
+  }
+}
+
+export async function getUserProgress(userId: string, courseId: string) {
+  try {
+    const { data, error } = await supabase
+      .from('enrollments')
+      .select('id, progress, status, completed_at')
+      .eq('user_id', userId)
+      .eq('course_id', courseId)
+      .single()
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('[v0] Error fetching user progress:', error)
+      return null
+    }
+
+    // If no enrollment found, return 0 progress
+    if (error?.code === 'PGRST116' || !data) {
+      return { progress_percentage: 0, status: 'not-started' }
+    }
+
+    return {
+      progress_percentage: data.progress || 0,
+      status: data.status || 'in-progress',
+      completed_at: data.completed_at,
+    }
+  } catch (error) {
+    console.error('[v0] Error in getUserProgress:', error)
     return null
   }
 }
@@ -552,7 +599,7 @@ export async function logErrorEvent(errorData: {
   stackTrace?: string
 }) {
   try {
-    await supabase.from('error_logs').insert([
+    await getSupabaseClient().from('error_logs').insert([
       {
         user_id: errorData.userId,
         endpoint: errorData.endpoint,
