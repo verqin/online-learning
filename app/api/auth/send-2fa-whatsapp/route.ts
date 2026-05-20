@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get admin's WhatsApp number from env
-    const adminWhatsApp = process.env.ADMIN_WHATSAPP_NUMBER
+    const adminWhatsApp = process.env.CALLMEBOT_API_KEY
     if (!adminWhatsApp) {
       return NextResponse.json(
         { error: '2FA not configured' },
