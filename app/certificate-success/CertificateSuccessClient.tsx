@@ -1,12 +1,14 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle, Home, Download } from 'lucide-react';
+import { CheckCircle, Home, Download, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CertificateSuccessClient() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const certificateId = searchParams.get('certificateId');
   const courseId = searchParams.get('courseId');
@@ -15,6 +17,14 @@ export default function CertificateSuccessClient() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 pt-32 pb-20">
       <div className="max-w-2xl mx-auto px-4">
+        {/* Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Go Back</span>
+        </button>
         {/* Success Card */}
         <Card className="glass-card-light shadow-lg border-blue-100">
           <CardContent className="p-12 text-center">

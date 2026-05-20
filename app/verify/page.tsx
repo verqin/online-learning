@@ -1,14 +1,16 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { BookOpen, Search, CheckCircle, XCircle, Award } from "lucide-react"
+import { BookOpen, Search, CheckCircle, XCircle, Award, ArrowLeft } from "lucide-react"
 
 export default function VerifyPage() {
+  const router = useRouter()
   const [uniqueId, setUniqueId] = useState("")
   const [searchResult, setSearchResult] = useState<any>(null)
   const [isSearching, setIsSearching] = useState(false)
@@ -84,6 +86,15 @@ export default function VerifyPage() {
 
       <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto">
+          {/* Back Button */}
+          <button
+            onClick={() => router.back()}
+            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-8"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Go Back</span>
+          </button>
+
           {/* Header */}
           <div className="text-center mb-12">
             <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
