@@ -104,7 +104,7 @@ export async function sendCourseCompletionNotification(
   score: number,
 ): Promise<WhatsAppResponse> {
   const levelText = level === 'certificate' ? 'Certificate' : 'Diploma';
-  const message = `🎉 Congratulations ${userName}!\n\nYou have successfully completed the ${courseName} ${levelText} course with a score of ${score}%.\n\nYour credential is now ready for download. Visit Edusanna to claim your certificate!\n\n📚 Keep learning with Edusanna`;
+  const message = `🎉 EDUSANNA ONLINE LEARNING\n\nCongratulations ${userName}!\n\nYou have successfully completed the ${courseName} ${levelText} course with a score of ${score}%.\n\nYour credential is now ready for download. Visit EDUSANNA ONLINE LEARNING to claim your certificate!\n\n📚 Keep learning with EDUSANNA ONLINE LEARNING`;
 
   return sendWhatsAppMessage(phoneNumber, message);
 }
@@ -118,7 +118,7 @@ export async function sendCertificateReadyNotification(
   courseName: string,
   certificateId: string,
 ): Promise<WhatsAppResponse> {
-  const message = `✅ Hi ${userName}!\n\nYour ${courseName} Certificate is ready for download!\n\nCertificate ID: ${certificateId}\n\nVisit your dashboard to download it now.\n\n🎓 Edusanna`;
+  const message = `✅ EDUSANNA ONLINE LEARNING\n\nHi ${userName}!\n\nYour ${courseName} Certificate is ready for download!\n\nCertificate ID: ${certificateId}\n\nVisit your dashboard to download it now.\n\n🎓 EDUSANNA ONLINE LEARNING`;
 
   return sendWhatsAppMessage(phoneNumber, message);
 }
@@ -132,7 +132,7 @@ export async function sendDiplomaReadyNotification(
   courseName: string,
   diplomaId: string,
 ): Promise<WhatsAppResponse> {
-  const message = `🎓 Hi ${userName}!\n\nYour ${courseName} Diploma is ready for download!\n\nDiploma ID: ${diplomaId}\n\nVisit your dashboard to download it now.\n\n📚 Edusanna - Your Path to Excellence`;
+  const message = `🎓 EDUSANNA ONLINE LEARNING\n\nHi ${userName}!\n\nYour ${courseName} Diploma is ready for download!\n\nDiploma ID: ${diplomaId}\n\nVisit your dashboard to download it now.\n\n📚 EDUSANNA ONLINE LEARNING - Your Path to Excellence`;
 
   return sendWhatsAppMessage(phoneNumber, message);
 }
@@ -146,7 +146,7 @@ export async function sendCourseUpdateNotification(
   updateTitle: string,
   updateMessage: string,
 ): Promise<WhatsAppResponse> {
-  const message = `📢 Hi ${userName}!\n\n${updateTitle}\n\n${updateMessage}\n\n👉 Log in to Edusanna to learn more`;
+  const message = `📢 EDUSANNA ONLINE LEARNING\n\nHi ${userName}!\n\n${updateTitle}\n\n${updateMessage}\n\n👉 Log in to EDUSANNA ONLINE LEARNING to learn more`;
 
   return sendWhatsAppMessage(phoneNumber, message);
 }
@@ -157,16 +157,16 @@ export async function sendCourseUpdateNotification(
 export async function sendWhatsAppNotification(
   message: string,
 ): Promise<WhatsAppResponse> {
-  const adminPhone = process.env.ADMIN_WHATSAPP_PHONE;
+  const callmebotPhone = process.env.CALLMEBOT_PHONE;
   
-  if (!adminPhone) {
-    console.warn('[WhatsApp] Admin phone number not configured');
+  if (!callmebotPhone) {
+    console.warn('[WhatsApp] CallMeBot phone number not configured');
     return {
       success: false,
-      message: 'Admin phone number not configured',
+      message: 'CallMeBot phone number not configured',
     };
   }
 
-  const fullMessage = `🔔 NEW PAYMENT ALERT\n\n${message}\n\n👉 Check admin dashboard to verify and process.`;
-  return sendWhatsAppMessage(adminPhone, fullMessage);
+  const fullMessage = `🔔 EDUSANNA ONLINE LEARNING - Payment Alert\n\n${message}\n\n👉 Check admin dashboard to verify and process.`;
+  return sendWhatsAppMessage(callmebotPhone, fullMessage);
 }

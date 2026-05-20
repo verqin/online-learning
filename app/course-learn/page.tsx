@@ -10,9 +10,11 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { BookOpen, CheckCircle, Clock, Users, Star, Send, ArrowRight, Award } from 'lucide-react';
+import { BookOpen, CheckCircle, Clock, Users, Star, Send, ArrowRight, Award, ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function CourseLearnPage() {
+  const router = useRouter();
   const [currentModule, setCurrentModule] = useState(0);
   const [completedModules, setCompletedModules] = useState(0);
   const [showCompletionForm, setShowCompletionForm] = useState(false);
