@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ArrowLeft, Trash2, AlertTriangle, Check } from 'lucide-react'
+import { ArrowLeft, Trash2, AlertTriangle, Check, Shield, Bell, Lock, User, LogOut } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -61,109 +62,214 @@ export default function SettingsPage() {
     }
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn')
+    localStorage.removeItem('userEmail')
+    localStorage.removeItem('userName')
+    window.location.href = '/'
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 pt-24 pb-20">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen premium-bg pt-24 pb-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <Link href="/dashboard" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Link>
-          <h1 className="text-3xl font-bold text-blue-900">Settings</h1>
-          <p className="text-blue-700">Manage your account and preferences</p>
+          <div className="flex items-center gap-3">
+            <Shield className="w-8 h-8 text-blue-600" />
+            <div>
+              <h1 className="text-4xl font-bold gradient-text">Settings</h1>
+              <p className="text-gray-600 mt-1">Manage your account, security, and preferences</p>
+            </div>
+          </div>
         </div>
 
-        {/* Account Information */}
-        <Card className="glass-card-light shadow-lg border-blue-100 mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-900">Account Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label className="text-blue-900 font-semibold">Email Address</Label>
-              <p className="text-gray-700 mt-2">{userEmail || 'No email found'}</p>
-            </div>
-            <div>
-              <Label className="text-blue-900 font-semibold">Account Status</Label>
-              <p className="text-green-600 font-medium mt-2">Active</p>
-            </div>
-          </CardContent>
-        </Card>
+        <Tabs defaultValue="account" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3 lg:w-auto gap-2 bg-white/50 backdrop-blur p-2 rounded-xl">
+            <TabsTrigger value="account" className="gap-2">
+              <User className="w-4 h-4" />
+              <span className="hidden sm:inline">Account</span>
+            </TabsTrigger>
+            <TabsTrigger value="security" className="gap-2">
+              <Lock className="w-4 h-4" />
+              <span className="hidden sm:inline">Security</span>
+            </TabsTrigger>
+            <TabsTrigger value="danger" className="gap-2">
+              <AlertTriangle className="w-4 h-4" />
+              <span className="hidden sm:inline">Danger</span>
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Danger Zone */}
-        <Card className="border-2 border-red-200 bg-red-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-900">
-              <AlertTriangle className="w-5 h-5" />
-              Danger Zone
-            </CardTitle>
-            <p className="text-sm text-red-700 mt-2">Irreversible actions</p>
-          </CardHeader>
-          <CardContent>
-            {!showDeleteConfirm ? (
-              <div>
-                <p className="text-red-800 mb-4">
-                  Once you delete your account, there is no going back. Please be certain you want to delete your account.
-                </p>
-                <Button
-                  variant="outline"
-                  className="border-red-600 text-red-600 hover:bg-red-50"
-                  onClick={() => setShowDeleteConfirm(true)}
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete Account
-                </Button>
-              </div>
-            ) : deleteSuccess ? (
-              <div className="text-center py-6">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Check className="w-6 h-6 text-green-600" />
+          {/* Account Tab */}
+          <TabsContent value="account" className="space-y-6">
+            <Card className="glass-card border-blue-200/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="w-5 h-5 text-blue-600" />
+                  Account Information
+                </CardTitle>
+                <p className="text-sm text-gray-600 mt-2">View your account details</p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <Label className="text-blue-900 font-semibold">Email Address</Label>
+                    <p className="text-gray-700 mt-3 text-lg font-mono">{userEmail || 'No email found'}</p>
+                  </div>
+                  <div className="p-4 bg-green-50 rounded-lg border border-green-100">
+                    <Label className="text-green-900 font-semibold">Account Status</Label>
+                    <div className="flex items-center gap-2 mt-3">
+                      <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+                      <p className="text-green-600 font-medium">Active</p>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-green-900 mb-2">Account Deleted Successfully</h3>
-                <p className="text-green-700 mb-4">Redirecting to homepage...</p>
-              </div>
-            ) : (
-              <div className="space-y-4 p-4 bg-white rounded-lg border-2 border-red-200">
-                <div>
-                  <p className="text-red-900 font-semibold mb-2">
-                    Please enter your email to confirm deletion:
-                  </p>
-                  <Input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={confirmEmail}
-                    onChange={(e) => setConfirmEmail(e.target.value)}
-                    className="border-red-300"
-                  />
-                  <p className="text-xs text-red-600 mt-2">
-                    This action cannot be undone. All your data will be permanently deleted.
-                  </p>
-                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-                <div className="flex gap-3">
+          {/* Security Tab */}
+          <TabsContent value="security" className="space-y-6">
+            <Card className="glass-card border-purple-200/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lock className="w-5 h-5 text-purple-600" />
+                  Security Settings
+                </CardTitle>
+                <p className="text-sm text-gray-600 mt-2">Manage your security preferences</p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="p-4 bg-purple-50 rounded-lg border border-purple-100 flex justify-between items-center">
+                    <div>
+                      <h4 className="font-semibold text-purple-900">Two-Factor Authentication</h4>
+                      <p className="text-sm text-purple-700 mt-1">Add extra security to your account</p>
+                    </div>
+                    <Button variant="outline" className="border-purple-300 text-purple-700">Coming Soon</Button>
+                  </div>
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-100 flex justify-between items-center">
+                    <div>
+                      <h4 className="font-semibold text-blue-900">Session Management</h4>
+                      <p className="text-sm text-blue-700 mt-1">View and manage your active sessions</p>
+                    </div>
+                    <Button variant="outline" className="border-blue-300 text-blue-700">View Sessions</Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Danger Zone Tab */}
+          <TabsContent value="danger" className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Logout Card */}
+              <Card className="border-2 border-orange-200 bg-orange-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-orange-900">
+                    <LogOut className="w-5 h-5" />
+                    Logout
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-orange-800 mb-4">Sign out from your account on this device</p>
+                  <Button onClick={handleLogout} className="w-full bg-orange-600 hover:bg-orange-700 text-white">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Delete Account Card */}
+              <Card className="border-2 border-red-200 bg-red-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-red-900">
+                    <Trash2 className="w-5 h-5" />
+                    Delete Account
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-red-800 mb-4 text-sm">Permanently delete your account and all data</p>
                   <Button
-                    onClick={() => {
-                      setShowDeleteConfirm(false)
-                      setConfirmEmail('')
-                    }}
                     variant="outline"
-                    className="flex-1"
+                    className="w-full border-red-600 text-red-600 hover:bg-red-100"
+                    onClick={() => setShowDeleteConfirm(true)}
                   >
-                    Cancel
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Account
                   </Button>
-                  <Button
-                    onClick={handleDeleteAccount}
-                    disabled={confirmEmail !== userEmail || isDeleting}
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-                  >
-                    {isDeleting ? 'Deleting...' : 'Permanently Delete Account'}
-                  </Button>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteConfirm && (
+              <Card className="border-2 border-red-300 bg-red-50 relative">
+                <CardHeader>
+                  <CardTitle className="text-red-900">Confirm Account Deletion</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {deleteSuccess ? (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Check className="w-8 h-8 text-green-600" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-green-900 mb-2">Account Deleted Successfully</h3>
+                      <p className="text-green-700 mb-4">Your account and all associated data have been permanently deleted.</p>
+                      <p className="text-sm text-gray-600">Redirecting to homepage...</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="p-4 bg-red-100 border border-red-300 rounded-lg">
+                        <p className="text-red-900 font-semibold">
+                          This action cannot be undone. Once you delete your account:
+                        </p>
+                        <ul className="text-red-800 mt-3 space-y-1 text-sm ml-4 list-disc">
+                          <li>All your courses and progress will be deleted</li>
+                          <li>Your certificates cannot be recovered</li>
+                          <li>All personal information will be permanently removed</li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <Label className="text-red-900 font-semibold">Enter your email to confirm:</Label>
+                        <Input
+                          type="email"
+                          placeholder={userEmail}
+                          value={confirmEmail}
+                          onChange={(e) => setConfirmEmail(e.target.value)}
+                          className="mt-3 border-red-300 focus:border-red-500"
+                        />
+                      </div>
+
+                      <div className="flex gap-3">
+                        <Button
+                          onClick={() => {
+                            setShowDeleteConfirm(false)
+                            setConfirmEmail('')
+                          }}
+                          variant="outline"
+                          className="flex-1 border-gray-300"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={handleDeleteAccount}
+                          disabled={confirmEmail !== userEmail || isDeleting}
+                          className="flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
+                        >
+                          {isDeleting ? 'Deleting...' : 'Permanently Delete'}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             )}
-          </CardContent>
-        </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )

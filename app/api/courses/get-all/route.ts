@@ -1,68 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { courseCatalog } from '@/lib/course-catalog'
 
 export const dynamic = 'force-dynamic'
 /**
  * GET /api/courses/get-all
- * Fetches all courses from Supabase with optional filtering
+ * Fetches all courses from the course catalog with optional filtering
  * Query params: category?, letter?, search?
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-    if (!supabaseUrl || !supabaseKey) {
-      console.error('[v0] Supabase not configured')
-      return NextResponse.json(
-        { error: 'Database not configured' },
-        { status: 500 }
-      )
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseKey)
-
     // Get query parameters for filtering
     const searchParams = request.nextUrl.searchParams
     const category = searchParams.get('category')
     const letter = searchParams.get('letter')
     const search = searchParams.get('search')
 
-    let query = supabase.from('courses').select('*')
+    // Start with all courses from catalog
+    let filteredCourses = [...courseCatalog]
 
     // Apply filters
     if (category) {
-      query = query.eq('category', category)
+      filteredCourses = filteredCourses.filter((course) => course.category === category)
     }
+
     if (letter) {
-      query = query.eq('letter', letter)
+      filteredCourses = filteredCourses.filter((course) => course.letter === letter)
     }
+
     if (search) {
-      query = query.or(
-        `certificate_title.ilike.%${search}%,diploma_title.ilike.%${search}%`
+      const searchLower = search.toLowerCase()
+      filteredCourses = filteredCourses.filter(
+        (course) =>
+          course.certificateTitle.toLowerCase().includes(searchLower) ||
+          course.diplomaTitle.toLowerCase().includes(searchLower)
       )
     }
 
-    const { data, error } = await query.order('letter', { ascending: true })
+    // Sort by letter
+    filteredCourses.sort((a, b) => a.letter.localeCompare(b.letter))
 
-    if (error) {
-      console.error('[v0] Error fetching courses:', error)
-      return NextResponse.json(
-        { error: 'Failed to fetch courses' },
-        { status: 500 }
-      )
-    }
-
-    // Transform database format to frontend format
-    const transformedCourses = data?.map((course) => ({
+    // Transform to match frontend format
+    const transformedCourses = filteredCourses.map((course) => ({
       id: course.id,
       letter: course.letter,
-      certificateTitle: course.certificate_title,
-      diplomaTitle: course.diploma_title,
+      certificateTitle: course.certificateTitle,
+      diplomaTitle: course.diplomaTitle,
       category: course.category,
       icon: course.icon,
       color: course.color,
-    })) || []
+    }))
+
+    console.log(`[v0] Courses API: Returning ${transformedCourses.length} courses`)
 
     return NextResponse.json(
       {
