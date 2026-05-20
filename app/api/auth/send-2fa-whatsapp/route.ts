@@ -19,22 +19,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get admin's WhatsApp number from env
-    const adminWhatsApp = process.env.ADMIN_WHATSAPP_NUMBER
-    if (!adminWhatsApp) {
+    // Get CallMeBot credentials from env
+    const callmebotPhone = process.env.CALLMEBOT_PHONE
+    const callmebotApiKey = process.env.CALLMEBOT_APIKEY
+    
+    if (!callmebotPhone || !callmebotApiKey) {
+      console.error('[v0] CallMeBot credentials missing: CALLMEBOT_PHONE or CALLMEBOT_APIKEY')
       return NextResponse.json(
-        { error: '2FA not configured' },
+        { error: '2FA not configured - CallMeBot credentials missing' },
         { status: 500 }
       )
     }
 
-    // Generate and send code
+    // Generate and send code via CallMeBot
     const code = generateTwoFACode()
-    const sent = await sendTwoFAWhatsApp(adminWhatsApp, code)
+    const sent = await sendTwoFAWhatsApp(callmebotPhone, code)
 
     if (!sent) {
       return NextResponse.json(
-        { error: 'Failed to send WhatsApp message' },
+        { error: 'Failed to send 2FA code via CallMeBot' },
         { status: 500 }
       )
     }
@@ -45,7 +48,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: true, 
-        message: 'Verification code sent to WhatsApp'
+        message: 'Verification code sent to your WhatsApp via EDUSANNA ONLINE LEARNING'
       },
       { status: 200 }
     )

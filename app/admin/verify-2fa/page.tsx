@@ -150,7 +150,7 @@ export default function Verify2FAPage() {
             <CardTitle className="text-2xl gradient-text">Two-Factor Authentication</CardTitle>
             <p className="text-sm text-gray-600 mt-3 flex items-center justify-center gap-2">
               <MessageCircle className="w-4 h-4" />
-              Code sent to: <span className="font-semibold">Your WhatsApp</span>
+              Code sent via: <span className="font-semibold text-blue-600">EDUSANNA ONLINE LEARNING WhatsApp</span>
             </p>
           </CardHeader>
 
