@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get CallMeBot credentials from env
+     // Get CallMeBot credentials from env
     const callmebotPhone = process.env.CALLMEBOT_PHONE
     const callmebotApiKey = process.env.CALLMEBOT_APIKEY
     
