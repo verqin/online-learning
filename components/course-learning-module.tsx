@@ -35,16 +35,24 @@ interface CourseLearningModuleProps {
   modules: Module[]
   courseLevel: string
   courseName: string
+  enrollmentId?: string
+  courseId?: string
+  userId?: string
   onModuleComplete: (moduleId: string) => void
   onCourseComplete: () => void
+  initialProgress?: number
 }
 
 export function CourseLearningModule({
   modules,
   courseLevel,
   courseName,
+  enrollmentId,
+  courseId,
+  userId,
   onModuleComplete,
   onCourseComplete,
+  initialProgress = 0,
 }: CourseLearningModuleProps) {
   const [expandedModule, setExpandedModule] = useState<string | null>(
     modules[0]?.id || null
@@ -53,15 +61,40 @@ export function CourseLearningModule({
   const [currentQuizAnswers, setCurrentQuizAnswers] = useState<{
     [key: string]: number
   }>({})
+  const [isSaving, setIsSaving] = useState(false)
 
   const completionPercentage = Math.round(
     (completedModules.length / modules.length) * 100
   )
 
-  const handleModuleComplete = (moduleId: string) => {
+  const handleModuleComplete = async (moduleId: string) => {
     if (!completedModules.includes(moduleId)) {
       const newCompleted = [...completedModules, moduleId]
       setCompletedModules(newCompleted)
+      setIsSaving(true)
+
+      try {
+        // Save progress to database if we have enrollment ID
+        if (enrollmentId && courseId && userId) {
+          const progressPercentage = Math.round((newCompleted.length / modules.length) * 100)
+          await fetch('/api/progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              enrollmentId,
+              courseId,
+              userId,
+              moduleId,
+              progressPercentage,
+            }),
+          })
+        }
+      } catch (error) {
+        console.error('[v0] Error saving progress:', error)
+      } finally {
+        setIsSaving(false)
+      }
+
       onModuleComplete(moduleId)
 
       // Check if all modules completed

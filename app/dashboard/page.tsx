@@ -37,28 +37,52 @@ export default function DashboardPage() {
     inProgressCourses: 0,
     totalHours: 0,
     avgScore: 0,
+    userId: "",
   })
+  const [enrolledCourses, setEnrolledCourses] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Get user data from localStorage (set during signup/login)
+  // Get user data from localStorage and fetch enrollments
   useEffect(() => {
     const userEmail = localStorage.getItem("userEmail") || "user@email.com"
     const userName = localStorage.getItem("userName") || "Learner"
     const joinDate = localStorage.getItem("joinDate") || "2024-01-15"
+    const userId = localStorage.getItem("userId") || ""
 
-    setUser({
+    setUser(prev => ({
+      ...prev,
       fullName: userName,
       email: userEmail,
       joinDate: joinDate,
-      completedCertificates: 0,
-      completedDiplomas: 0,
-      inProgressCourses: 0,
-      totalHours: 0,
-      avgScore: 0,
-    })
+      userId: userId,
+    }))
+
+    // Fetch enrollments if we have user ID
+    if (userId) {
+      fetchUserEnrollments(userId)
+    } else {
+      setIsLoading(false)
+    }
   }, [])
 
-  // Empty array - new users have no courses initially
-  const enrolledCourses: any[] = []
+  const fetchUserEnrollments = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/enrollments?userId=${userId}`)
+      if (response.ok) {
+        const data = await response.json()
+        setEnrolledCourses(data.enrollments || [])
+      } else {
+        console.error('[v0] Failed to fetch enrollments')
+        setError('Failed to load your courses')
+      }
+    } catch (err) {
+      console.error('[v0] Error fetching enrollments:', err)
+      setError('Error loading your courses')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const inProgressCourses = enrolledCourses.filter((course) => course.status === "in-progress")
   const completedCourses = enrolledCourses.filter((course) => course.status === "completed")

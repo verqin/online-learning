@@ -14,9 +14,10 @@ export default function Verify2FAPage() {
   const [code, setCode] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [adminEmail, setAdminEmail] = useState('')
-  const [timeLeft, setTimeLeft] = useState(600) // 10 minutes
+  const [timeLeft, setTimeLeft] = useState(18 * 60) // 18 minutes - extended timeout
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [sentMessage, setSentMessage] = useState('')
 
   useEffect(() => {
     const email = localStorage.getItem('adminEmail') || ''
@@ -62,7 +63,8 @@ export default function Verify2FAPage() {
         }),
       })
 
-      if (response.ok) {
+      const data = await response.json()
+      if (response.ok && data.success) {
         setSuccess(true)
         localStorage.setItem('isAdmin', 'true')
         localStorage.removeItem('adminEmail') // Clear for next login
@@ -72,31 +74,23 @@ export default function Verify2FAPage() {
           router.push('/admin/dashboard')
         }, 1500)
       } else {
-        setError('Invalid verification code. Please try again.')
+        setError(data.error || 'Invalid verification code. Please try again.')
         setCode('')
       }
     } catch (err) {
-      // Fallback for development: accept code 123456
-      if (code === '123456') {
-        setSuccess(true)
-        localStorage.setItem('isAdmin', 'true')
-        localStorage.removeItem('adminEmail')
-        setTimeout(() => {
-          router.push('/admin/dashboard')
-        }, 1500)
-      } else {
-        setError('Verification failed. Please try again.')
-        setCode('')
-      }
+      console.error('[v0] Verification error:', err)
+      setError('Verification failed. Please check your code and try again.')
+      setCode('')
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleResendCode = async () => {
-    setTimeLeft(600)
+    setTimeLeft(18 * 60) // Reset to 18 minutes
     setCode('')
     setError('')
+    setIsLoading(true)
 
     try {
       const response = await fetch('/api/auth/send-2fa-whatsapp', {
@@ -105,13 +99,18 @@ export default function Verify2FAPage() {
         body: JSON.stringify({ email: adminEmail }),
       })
 
+      const data = await response.json()
       if (response.ok) {
-        alert('New code sent to your WhatsApp')
+        setSentMessage('New code sent to your WhatsApp. It will arrive within 1-3 minutes.')
+        setTimeout(() => setSentMessage(''), 5000)
       } else {
-        alert('Could not resend code. Please try again.')
+        setError(data.error || 'Could not resend code. Please try again.')
       }
     } catch (err) {
-      alert('Code resend failed. Try again.')
+      console.error('[v0] Resend error:', err)
+      setError('Code resend failed. Please try again.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -175,6 +174,12 @@ export default function Verify2FAPage() {
               {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                   <p className="text-red-700 text-sm font-medium">{error}</p>
+                </div>
+              )}
+
+              {sentMessage && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-green-700 text-sm font-medium">{sentMessage}</p>
                 </div>
               )}
 
