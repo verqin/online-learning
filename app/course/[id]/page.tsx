@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,75 +9,105 @@ import { BookOpen, ArrowLeft, Play, Clock, Users, Star, CheckCircle, Lock, Award
 import { SkillsShowcase } from "@/components/course/skills-showcase"
 import { getDiplomaSkills } from "@/lib/diploma-course-skills"
 
-export default function CoursePage({ params }: { params: { id: string } }) {
-  const [currentModule, setCurrentModule] = useState(1)
-  const [showExercise, setShowExercise] = useState(false)
+interface Module {
+  id: string
+  title: string
+  content: string
+  duration?: string
+}
 
-  // Mock course data
-  const course = {
-    id: params.id,
-    title: "Stress Management",
-    description:
-      "Learn effective techniques to manage stress and improve your mental well-being in both personal and professional settings.",
-    modules: [
-      {
-        id: 1,
-        title: "Understanding Stress",
-        content: "Stress is a natural response to challenging situations...",
-        completed: true,
-      },
-      {
-        id: 2,
-        title: "Identifying Stress Triggers",
-        content: "Common stress triggers include work pressure, relationships...",
-        completed: true,
-      },
-      {
-        id: 3,
-        title: "Breathing Techniques",
-        content: "Deep breathing exercises can help calm your nervous system...",
-        completed: false,
-      },
-      {
-        id: 4,
-        title: "Mindfulness Practices",
-        content: "Mindfulness helps you stay present and reduce anxiety...",
-        completed: false,
-      },
-      {
-        id: 5,
-        title: "Time Management",
-        content: "Effective time management reduces stress and increases productivity...",
-        completed: false,
-      },
-      {
-        id: 6,
-        title: "Building Resilience",
-        content: "Resilience helps you bounce back from difficult situations...",
-        completed: false,
-      },
-      {
-        id: 7,
-        title: "Workplace Stress",
-        content: "Managing stress in professional environments requires specific strategies...",
-        completed: false,
-      },
-      {
-        id: 8,
-        title: "Long-term Wellness",
-        content: "Creating sustainable habits for long-term stress management...",
-        completed: false,
-      },
-    ],
-    duration: "Relatively Appealing",
-    students: 1250,
-    rating: 4.8,
+interface Course {
+  id: string
+  title: string
+  description: string
+  level: string
+  duration: string
+  modules: Module[]
+  students?: number
+  rating?: number
+}
+
+export default function CoursePage({ params }: { params: { id: string } }) {
+  const [currentModule, setCurrentModule] = useState<string | null>(null)
+  const [showExercise, setShowExercise] = useState(false)
+  const [course, setCourse] = useState<Course | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [completedModules, setCompletedModules] = useState<string[]>([])
+  const [userId, setUserId] = useState<string>("")
+  const [enrollmentId, setEnrollmentId] = useState<string>("")
+
+  useEffect(() => {
+    // Get user ID from localStorage
+    const storedUserId = localStorage.getItem("userId") || ""
+    setUserId(storedUserId)
+
+    // Fetch course data
+    fetchCourse()
+  }, [params.id])
+
+  const fetchCourse = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      const response = await fetch(`/api/courses/${params.id}`)
+      
+      if (response.ok) {
+        const data = await response.json()
+        setCourse(data.course)
+        setCompletedModules(data.completedModules || [])
+        setEnrollmentId(data.enrollmentId || "")
+        
+        // Set first uncompleted module or first module as current
+        const firstIncompleted = data.course?.modules?.find(
+          (m: Module) => !data.completedModules?.includes(m.id)
+        )
+        setCurrentModule(firstIncompleted?.id || data.course?.modules?.[0]?.id)
+      } else if (response.status === 404) {
+        setError("Course not found")
+      } else {
+        setError("Failed to load course")
+      }
+    } catch (err) {
+      console.error('[v0] Error fetching course:', err)
+      setError("Error loading course")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const completedModules = course.modules.filter((m) => m.completed).length
-  const progress = (completedModules / course.modules.length) * 100
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+        <Card className="w-full max-w-md glass-card-light shadow-xl">
+          <CardContent className="p-8 text-center">
+            <p className="text-lg text-gray-600">Loading course...</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
-  const currentModuleData = course.modules.find((m) => m.id === currentModule)
+  if (error || !course) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+        <Card className="w-full max-w-md glass-card-light shadow-xl">
+          <CardContent className="p-8 text-center">
+            <p className="text-lg text-red-600 font-medium mb-4">{error || "Course not found"}</p>
+            <Link href="/courses">
+              <Button className="premium-button">Back to Courses</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  const completedCount = completedModules.length
+  const totalModules = course.modules?.length || 0
+  const progress = totalModules > 0 ? (completedCount / totalModules) * 100 : 0
+
+  const currentModuleData = course.modules?.find((m) => m.id === currentModule)
   
   // Get skills for this diploma course
   const courseSkills = getDiplomaSkills(course.title)

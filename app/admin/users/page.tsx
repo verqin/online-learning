@@ -11,9 +11,9 @@ import { LogOut, ArrowLeft, Trash2, Edit2, Plus, Search } from "lucide-react"
 interface User {
   id: string
   email: string
-  name: string
-  joinDate: string
-  courses: number
+  full_name: string
+  created_at: string
+  enrollment_count: number
 }
 
 export default function AdminUsersPage() {
@@ -21,7 +21,8 @@ export default function AdminUsersPage() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [users, setUsers] = useState<User[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     // Check admin status
@@ -32,17 +33,28 @@ export default function AdminUsersPage() {
     }
     setIsAdmin(true)
 
-    // Load users from localStorage (placeholder for database integration)
+    // Load users from Supabase
     loadUsers()
   }, [router])
 
-  const loadUsers = () => {
-    // Placeholder - in production, this would fetch from Supabase
-    const mockUsers: User[] = [
-      { id: "1", email: "tinashe@example.com", name: "Tinashe Lee Vurayai", joinDate: "2025-01-15", courses: 0 },
-      { id: "2", email: "user@example.com", name: "Sample User", joinDate: "2025-01-10", courses: 0 },
-    ]
-    setUsers(mockUsers)
+  const loadUsers = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      const response = await fetch('/api/admin/users')
+      if (response.ok) {
+        const data = await response.json()
+        setUsers(data.users || [])
+      } else {
+        console.error('[v0] Failed to load users')
+        setError('Failed to load users')
+      }
+    } catch (err) {
+      console.error('[v0] Error loading users:', err)
+      setError('Error loading users from database')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleLogout = () => {
@@ -51,14 +63,26 @@ export default function AdminUsersPage() {
     window.location.href = "/login"
   }
 
-  const handleDeleteUser = (userId: string) => {
+  const handleDeleteUser = async (userId: string) => {
     if (confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
-      setUsers(users.filter(u => u.id !== userId))
+      try {
+        const response = await fetch(`/api/admin/users/${userId}`, {
+          method: 'DELETE',
+        })
+        if (response.ok) {
+          setUsers(users.filter(u => u.id !== userId))
+        } else {
+          setError('Failed to delete user')
+        }
+      } catch (err) {
+        console.error('[v0] Error deleting user:', err)
+        setError('Error deleting user')
+      }
     }
   }
 
   const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
@@ -93,6 +117,12 @@ export default function AdminUsersPage() {
       {/* Main Content */}
       <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-20">
         <div className="max-w-7xl mx-auto">
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-700 font-medium">{error}</p>
+            </div>
+          )}
+
           {/* Search and Actions */}
           <div className="mb-8 flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div className="flex-1 relative max-w-md">
@@ -125,13 +155,21 @@ export default function AdminUsersPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-blue-100">
-                    {filteredUsers.length > 0 ? (
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                          Loading users...
+                        </td>
+                      </tr>
+                    ) : filteredUsers.length > 0 ? (
                       filteredUsers.map((user) => (
                         <tr key={user.id} className="hover:bg-blue-50/50 transition">
-                          <td className="px-6 py-4 text-sm text-gray-900 font-medium">{user.name}</td>
+                          <td className="px-6 py-4 text-sm text-gray-900 font-medium">{user.full_name}</td>
                           <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{user.joinDate}</td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{user.courses}</td>
+                          <td className="px-6 py-4 text-sm text-gray-600">
+                            {new Date(user.created_at).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600">{user.enrollment_count}</td>
                           <td className="px-6 py-4 text-center">
                             <div className="flex justify-center gap-2">
                               <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">

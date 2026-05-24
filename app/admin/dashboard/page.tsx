@@ -8,10 +8,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { LogOut, Users, CreditCard, Award, BarChart3, Settings } from "lucide-react"
 import { ProtectedRoute } from "@/components/protected-route"
 
+interface AdminStats {
+  totalUsers: number
+  totalPayments: number
+  totalCertificates: number
+  totalRevenue: number
+  isLoading: boolean
+  error: string | null
+}
+
 export default function AdminDashboard() {
   const router = useRouter()
   const [isAdmin, setIsAdmin] = useState(false)
   const [adminEmail, setAdminEmail] = useState("")
+  const [stats, setStats] = useState<AdminStats>({
+    totalUsers: 0,
+    totalPayments: 0,
+    totalCertificates: 0,
+    totalRevenue: 0,
+    isLoading: true,
+    error: null,
+  })
 
   useEffect(() => {
     // Check admin status on mount
@@ -25,7 +42,33 @@ export default function AdminDashboard() {
 
     setIsAdmin(true)
     setAdminEmail(email)
+
+    // Fetch admin stats from database
+    fetchAdminStats()
   }, [router])
+
+  const fetchAdminStats = async () => {
+    try {
+      const response = await fetch('/api/admin/stats')
+      if (response.ok) {
+        const data = await response.json()
+        setStats({
+          totalUsers: data.totalUsers || 0,
+          totalPayments: data.totalPayments || 0,
+          totalCertificates: data.totalCertificates || 0,
+          totalRevenue: data.totalRevenue || 0,
+          isLoading: false,
+          error: null,
+        })
+      } else {
+        console.error('[v0] Failed to fetch admin stats')
+        setStats(prev => ({ ...prev, isLoading: false, error: 'Failed to load statistics' }))
+      }
+    } catch (error) {
+      console.error('[v0] Error fetching stats:', error)
+      setStats(prev => ({ ...prev, isLoading: false, error: 'Error loading statistics' }))
+    }
+  }
 
   const handleLogout = () => {
     localStorage.setItem("isAdmin", "false")
@@ -38,10 +81,30 @@ export default function AdminDashboard() {
   }
 
   const adminStats = [
-    { label: "Total Users", value: "0", icon: Users, color: "bg-blue-100 text-blue-600" },
-    { label: "Payments", value: "0", icon: CreditCard, color: "bg-green-100 text-green-600" },
-    { label: "Certificates", value: "0", icon: Award, color: "bg-purple-100 text-purple-600" },
-    { label: "Revenue", value: "$0", icon: BarChart3, color: "bg-orange-100 text-orange-600" },
+    { 
+      label: "Total Users", 
+      value: stats.isLoading ? "..." : stats.totalUsers.toString(), 
+      icon: Users, 
+      color: "bg-blue-100 text-blue-600" 
+    },
+    { 
+      label: "Payments", 
+      value: stats.isLoading ? "..." : stats.totalPayments.toString(), 
+      icon: CreditCard, 
+      color: "bg-green-100 text-green-600" 
+    },
+    { 
+      label: "Certificates", 
+      value: stats.isLoading ? "..." : stats.totalCertificates.toString(), 
+      icon: Award, 
+      color: "bg-purple-100 text-purple-600" 
+    },
+    { 
+      label: "Revenue", 
+      value: stats.isLoading ? "..." : `$${stats.totalRevenue.toFixed(2)}`, 
+      icon: BarChart3, 
+      color: "bg-orange-100 text-orange-600" 
+    },
   ]
 
   return (
