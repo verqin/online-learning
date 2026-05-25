@@ -160,8 +160,7 @@ export default function AdminPaymentsPage() {
         </div>
       </nav>
 
-      <div className="pt-24 pb-20">
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="pt-24 pb-20 max-w-6xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
           <Link href="/user-dashboard">
