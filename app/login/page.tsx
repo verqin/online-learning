@@ -37,12 +37,12 @@ export default function LoginPage() {
       const data = await response.json()
 
       if (response.ok) {
-        // Admin login
+        // Admin login - direct access, no 2FA
         if (data.isAdmin) {
           localStorage.setItem("isAdmin", "true")
           localStorage.setItem("isLoggedIn", "false")
           localStorage.setItem("adminEmail", formData.email)
-          window.location.href = "/admin/verify-2fa"
+          window.location.href = "/admin/dashboard"
           return
         }
 
@@ -51,12 +51,12 @@ export default function LoginPage() {
         localStorage.setItem("isAdmin", "false")
         localStorage.setItem("userEmail", formData.email)
         localStorage.setItem("userName", data.userName || formData.email)
+        localStorage.setItem("userId", data.userId || "")
         window.location.href = "/dashboard"
         return
       } else {
         // Invalid credentials
-        const errorData = await response.json()
-        setError(errorData.error || "Invalid email or password")
+        setError(data.error || "Invalid email or password")
         setIsLoading(false)
       }
     } catch (error) {

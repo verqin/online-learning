@@ -1,205 +1,119 @@
-# EDUSANNA Quick Start Guide
+# Quick Start - 5 Minute Setup
 
-## Immediate Actions Required
-
-### 1. Add Environment Variables (5 minutes)
-
-Go to **Vercel Project Settings → Environment Variables** and add:
+## Step 1: Set Admin Credentials (2 minutes)
+Create or edit `.env.local` in your project root:
 
 ```
-ADMIN_EMAIL=tinasheleev@gmail.com
-ADMIN_PASSWORD=ES#1Jehovah
-ADMIN_WHATSAPP_NUMBER=263782XXXXXX
+ADMIN_EMAIL=admin@edusanna.com
+ADMIN_PASSWORD=MySecurePassword123!
 ```
 
-(Other Supabase/PayPal vars should already be set)
-
-### 2. Run Database Migration (3 minutes)
-
-1. Go to **Supabase Dashboard → SQL Editor**
-2. Copy all content from `/scripts/04-setup-supabase-tables.sql`
-3. Paste into SQL Editor → RUN
-
-### 3. Add Sample Courses (2 minutes)
-
-Copy this into Supabase SQL Editor:
-
-```sql
-INSERT INTO courses (title, description, instructor, duration_weeks, difficulty_level, category, price_standard, price_certificate, price_diploma, modules_count) VALUES
-('Web Development Basics', 'Learn HTML, CSS, JavaScript', 'John Doe', 8, 'beginner', 'Programming', 0, 29.99, 49.99, 10),
-('Python Data Science', 'Master Python for data', 'Jane Smith', 12, 'advanced', 'Programming', 0, 39.99, 69.99, 15),
-('Digital Marketing', 'Complete marketing guide', 'Mike Johnson', 6, 'beginner', 'Marketing', 0, 24.99, 44.99, 8);
+## Step 2: Start Dev Server (1 minute)
+```bash
+cd /vercel/share/v0-project
+pnpm dev
 ```
+
+Wait for:
+```
+✓ Compiled successfully
+Ready in 1234ms
+```
+
+## Step 3: Login as Admin (1 minute)
+1. Open: http://localhost:3000/login
+2. Email: admin@edusanna.com
+3. Password: MySecurePassword123!
+4. Click **Sign In**
+
+## Step 4: Verify (1 minute)
+✅ Should see admin dashboard with stats
+✅ Click "Courses" in sidebar
+✅ Browse courses and click one
+✅ See learning modules
 
 ---
 
-## Test the System
+## That's It! 🎉
 
-### Test Learner Flow (10 minutes)
-
-1. Go to `/signup`
-2. Select "Academia Plan" or "Standard Plan"
-3. Fill form → Create Account
-4. Automatically logged in to `/dashboard`
-5. Go to `/courses`
-6. Click "Start Learning" on any course
-7. View course modules
-
-### Test Admin Flow (5 minutes)
-
-1. Go to `/login`
-2. Email: `tinasheleev@gmail.com`
-3. Password: `ES#1Jehovah`
-4. **Check WhatsApp** for 6-digit code
-5. Go to `/admin/verify-2fa`
-6. Enter the code
-7. Access `/admin/dashboard`
-
-### Test Certificates (5 minutes)
-
-1. As learner, complete course (80%+ progress)
-2. Request certificate via dashboard
-3. As admin, view certificate in analytics
-4. Download certificate PDF
+Your platform is working:
+- ✅ Admin login (NO 2FA!)
+- ✅ NO session timeout
+- ✅ Courses page
+- ✅ Course details
+- ✅ Learning interface
 
 ---
 
-## Key URLs
+## Optional: Add Database Support
 
-| Page | URL | Purpose |
-|------|-----|---------|
-| Signup | `/signup` | Learner signup |
-| Login | `/login` | Learner/Admin login |
-| Learner Dashboard | `/dashboard` | View progress |
-| Browse Courses | `/courses` | Find courses |
-| Start Learning | `/learn/[id]` | Take course |
-| Settings | `/dashboard/settings` | Delete account |
-| Admin Dashboard | `/admin/dashboard` | Admin panel |
-| Admin Analytics | `/admin/analytics` | View metrics |
-| 2FA Verify | `/admin/verify-2fa` | 2FA entry |
+When ready to enable user registration, progress tracking, etc:
+
+### In Supabase Dashboard:
+
+**SQL Editor → New Query → Copy/Paste/Run:**
+
+**Query 1:** `/scripts/001_edusanna_schema.sql`
+```
+Expected: 13 tables created ✅
+```
+
+**Query 2:** `/scripts/02-insert-courses.sql`
+```
+Expected: 35 rows inserted ✅
+```
+
+### In `.env.local` - Add:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGc...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...
+```
+
+Then: `pnpm dev` (restart server)
 
 ---
 
-## API Endpoints
+## Login URLs
 
-### Login
-```
-POST /api/auth/login
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
-```
-
-### Send 2FA
-```
-POST /api/auth/send-2fa-whatsapp
-{
-  "email": "tinasheleev@gmail.com"
-}
-```
-
-### Verify 2FA
-```
-POST /api/auth/verify-2fa-whatsapp
-{
-  "email": "tinasheleev@gmail.com",
-  "code": "123456"
-}
-```
-
-### Generate Certificate
-```
-POST /api/admin/generate-certificate
-{
-  "userId": "user-id",
-  "courseId": "course-id",
-  "certificateType": "certificate",
-  "studentName": "John Doe",
-  "courseName": "Web Development"
-}
-```
-
-### Get Analytics
-```
-GET /api/admin/analytics
-(Requires admin session)
-```
+**Admin**: http://localhost:3000/login  
+**Learner**: http://localhost:3000/login (same page)  
+**Courses**: http://localhost:3000/courses  
+**Dashboard**: http://localhost:3000/dashboard  
 
 ---
 
-## Troubleshooting
+## Common Issues
 
-### 2FA Code Not Arriving
-- Check WhatsApp is active
-- Verify `ADMIN_WHATSAPP_NUMBER` format (country code required)
-- Check WhatsApp notifications aren't muted
-
-### Admin Can't Login
-- Verify email/password exactly: `tinasheleev@gmail.com` / `ES#1Jehovah`
-- Clear browser localStorage
-- Check env vars are set (not hardcoded)
-
-### "Start Learning" Shows Sign In Prompt
-- Ensure you're logged in (check localStorage)
-- Clear cache and reload
-- Use incognito window to test
-
-### Courses Not Loading
-- Verify courses exist in Supabase
-- Check courses have `is_active = true`
-- Confirm `NEXT_PUBLIC_SUPABASE_URL` is correct
+| Issue | Fix |
+|-------|-----|
+| "Invalid email or password" | Check `.env.local` values match exactly |
+| Blank admin dashboard | Restart server after .env changes |
+| Courses show generic content | Normal! Run SQL scripts for real content |
+| Can't create learner account | Setup Supabase (optional step above) |
 
 ---
 
-## What's Working
+## What Changed From Old Version?
 
-✓ Learner signup (Academia/Standard)
-✓ Learner login & logout
-✓ Admin login with WhatsApp 2FA
-✓ Course browsing
-✓ Start learning courses
-✓ Progress tracking
-✓ Certificate generation
-✓ Admin analytics
-✓ Account deletion
-✓ Notifications system
-✓ PayPal payments
-✓ Responsive design
+| Feature | Before | Now |
+|---------|--------|-----|
+| 2FA | ⏳ 18 min wait | ✅ REMOVED! |
+| Admin timeout | 😤 18 mins | ✅ NO TIMEOUT! |
+| Course loading | ❌ Blank if no DB | ✅ Fallback content |
+| Learner login | ❌ Broken | ✅ Works with Supabase |
+| Setup time | 🎯 Complex | ✅ 5 minutes |
 
 ---
 
-## Next 24 Hours Checklist
+## Documentation
 
-- [ ] Add 3 env vars (ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_WHATSAPP_NUMBER)
-- [ ] Run SQL migration in Supabase
-- [ ] Add sample courses
-- [ ] Test learner signup flow
-- [ ] Test admin login with 2FA
-- [ ] Test course learning
-- [ ] Test certificate generation
-- [ ] Check analytics dashboard
-- [ ] Test on mobile
-- [ ] Deploy to production
+For detailed information, see:
+- **DATABASE_AND_SETUP_GUIDE.md** - Full setup & troubleshooting
+- **FIXES_APPLIED_TODAY.md** - What was changed & why
+- **IMPLEMENTATION_SUMMARY.md** - Technical details
 
 ---
 
-## Important Notes
-
-1. **WhatsApp 2FA**: Codes expire in 10 minutes
-2. **Admin Credentials**: NEVER expose to frontend
-3. **Certificates**: Require 80% course completion
-4. **Sessions**: Stored in localStorage (upgrade to cookies for production)
-5. **Database**: All data now persists in Supabase
-
----
-
-## Support Files
-
-Read these for detailed information:
-- `COMPLETE_SYSTEM_SETUP.md` - Full setup guide
-- `SYSTEM_COMPLETION_REPORT.md` - Detailed implementation report
-
----
-
-**Ready to go live!** Follow the checklist above and you'll be up and running in 30 minutes.
+**Ready to start? Set ADMIN_EMAIL and ADMIN_PASSWORD in .env.local, then `pnpm dev`!** 🚀
