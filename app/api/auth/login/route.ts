@@ -45,18 +45,65 @@ export async function POST(request: NextRequest) {
     }
 
     // Learner authentication via Supabase
-    // Note: In production, learner auth should be handled via Supabase client
-    // This API is primarily for admin login with 2FA
-    // Learners use Supabase built-in auth on the client side
-    
-    console.log('[v0] Non-admin login attempt - should use Supabase client auth')
-    return NextResponse.json(
-      { 
-        error: 'Use Supabase client authentication for learner login',
-        isAdmin: false 
-      },
-      { status: 400 }
-    )
+    try {
+      const { createClient } = await import('@supabase/supabase-js')
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+
+      if (!supabaseUrl || !supabaseKey) {
+        console.error('[v0] Supabase credentials not configured')
+        return NextResponse.json(
+          { error: 'Authentication service not configured' },
+          { status: 500 }
+        )
+      }
+
+      const supabase = createClient(supabaseUrl, supabaseKey, {
+        auth: { persistSession: false }
+      })
+
+      // Authenticate with Supabase
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (authError || !data.user) {
+        console.log('[v0] Learner authentication failed:', authError?.message)
+        return NextResponse.json(
+          { 
+            error: 'Invalid email or password',
+            isAdmin: false 
+          },
+          { status: 401 }
+        )
+      }
+
+      // Get user profile for full name
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', data.user.id)
+        .single()
+
+      console.log('[v0] Learner login successful:', email)
+      return NextResponse.json(
+        {
+          success: true,
+          isAdmin: false,
+          email: data.user.email,
+          userId: data.user.id,
+          userName: profile?.full_name || email,
+        },
+        { status: 200 }
+      )
+    } catch (error) {
+      console.error('[v0] Learner authentication error:', error)
+      return NextResponse.json(
+        { error: 'Authentication failed - please try again' },
+        { status: 500 }
+      )
+    }
   } catch (error) {
     console.error('[v0] Login error:', error)
     return NextResponse.json(
