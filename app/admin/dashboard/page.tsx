@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { LogOut, Users, CreditCard, Award, BarChart3, Settings } from "lucide-react"
-import { ProtectedRoute } from "@/components/protected-route"
+import { checkAdminAuth, clearAdminSession } from "@/lib/admin-auth"
 
 interface AdminStats {
   totalUsers: number
@@ -21,6 +21,7 @@ export default function AdminDashboard() {
   const router = useRouter()
   const [isAdmin, setIsAdmin] = useState(false)
   const [adminEmail, setAdminEmail] = useState("")
+  const [isPageReady, setIsPageReady] = useState(false)
   const [stats, setStats] = useState<AdminStats>({
     totalUsers: 0,
     totalPayments: 0,
@@ -31,21 +32,21 @@ export default function AdminDashboard() {
   })
 
   useEffect(() => {
-    // Check admin status on mount
-    const admin = localStorage.getItem("isAdmin") === "true"
-    const email = localStorage.getItem("adminEmail") || ""
+    // Check admin status on mount only (empty dependency array to run once)
+    const authStatus = checkAdminAuth()
 
-    if (!admin) {
+    if (!authStatus.isAdmin) {
       router.push("/login")
       return
     }
 
     setIsAdmin(true)
-    setAdminEmail(email)
+    setAdminEmail(authStatus.email || "")
+    setIsPageReady(true)
 
     // Fetch admin stats from database
     fetchAdminStats()
-  }, [router])
+  }, [])
 
   const fetchAdminStats = async () => {
     try {
@@ -71,12 +72,11 @@ export default function AdminDashboard() {
   }
 
   const handleLogout = () => {
-    localStorage.setItem("isAdmin", "false")
-    localStorage.removeItem("adminEmail")
+    clearAdminSession()
     window.location.href = "/login"
   }
 
-  if (!isAdmin) {
+  if (!isPageReady) {
     return null
   }
 
@@ -108,8 +108,7 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-gradient-to-b from-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-b from-white to-blue-50">
       {/* Admin Header */}
       <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-white/70 border-b border-blue-200/30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -223,6 +222,5 @@ export default function AdminDashboard() {
         </div>
       </div>
     </div>
-    </ProtectedRoute>
   )
 }

@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { LogOut, ArrowLeft, Download, RotateCw, Trash2, Search, FileText } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { checkAdminAuth, clearAdminSession } from "@/lib/admin-auth"
 
 interface Certificate {
   id: string
@@ -23,23 +24,23 @@ interface Certificate {
 
 export default function AdminCertificatesPage() {
   const router = useRouter()
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [isPageReady, setIsPageReady] = useState(false)
   const [certificates, setCertificates] = useState<Certificate[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    // Check admin status
-    const admin = localStorage.getItem("isAdmin") === "true"
-    if (!admin) {
+    // Check admin status (only once)
+    const authStatus = checkAdminAuth()
+    if (!authStatus.isAdmin) {
       router.push("/login")
       return
     }
-    setIsAdmin(true)
+    setIsPageReady(true)
 
     // Load certificates from localStorage (placeholder for database integration)
     loadCertificates()
-  }, [router])
+  }, [])
 
   const loadCertificates = () => {
     // Placeholder - in production, this would fetch from Supabase
@@ -48,8 +49,7 @@ export default function AdminCertificatesPage() {
   }
 
   const handleLogout = () => {
-    localStorage.setItem("isAdmin", "false")
-    localStorage.removeItem("adminEmail")
+    clearAdminSession()
     window.location.href = "/login"
   }
 
@@ -74,7 +74,7 @@ export default function AdminCertificatesPage() {
     cert.certificateId.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  if (!isAdmin) {
+  if (!isPageReady) {
     return null
   }
 

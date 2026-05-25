@@ -8,10 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LogOut, ArrowLeft, Save, AlertCircle, CheckCircle } from "lucide-react"
+import { checkAdminAuth, clearAdminSession } from "@/lib/admin-auth"
 
 export default function AdminSettingsPage() {
   const router = useRouter()
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [isPageReady, setIsPageReady] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [settings, setSettings] = useState({
@@ -23,13 +24,13 @@ export default function AdminSettingsPage() {
   })
 
   useEffect(() => {
-    // Check admin status
-    const admin = localStorage.getItem("isAdmin") === "true"
-    if (!admin) {
+    // Check admin status (only once)
+    const authStatus = checkAdminAuth()
+    if (!authStatus.isAdmin) {
       router.push("/login")
       return
     }
-    setIsAdmin(true)
+    setIsPageReady(true)
 
     // Load settings from localStorage (placeholder for database integration)
     const savedSettings = localStorage.getItem("adminSettings")
@@ -40,11 +41,10 @@ export default function AdminSettingsPage() {
         console.error("Error loading settings:", e)
       }
     }
-  }, [router])
+  }, [])
 
   const handleLogout = () => {
-    localStorage.setItem("isAdmin", "false")
-    localStorage.removeItem("adminEmail")
+    clearAdminSession()
     window.location.href = "/login"
   }
 
@@ -63,7 +63,7 @@ export default function AdminSettingsPage() {
     }
   }
 
-  if (!isAdmin) {
+  if (!isPageReady) {
     return null
   }
 

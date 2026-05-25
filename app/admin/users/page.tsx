@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { LogOut, ArrowLeft, Trash2, Edit2, Plus, Search } from "lucide-react"
+import { checkAdminAuth, clearAdminSession } from "@/lib/admin-auth"
 
 interface User {
   id: string
@@ -18,24 +19,24 @@ interface User {
 
 export default function AdminUsersPage() {
   const router = useRouter()
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [isPageReady, setIsPageReady] = useState(false)
   const [users, setUsers] = useState<User[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Check admin status
-    const admin = localStorage.getItem("isAdmin") === "true"
-    if (!admin) {
+    // Check admin status (only once)
+    const authStatus = checkAdminAuth()
+    if (!authStatus.isAdmin) {
       router.push("/login")
       return
     }
-    setIsAdmin(true)
+    setIsPageReady(true)
 
     // Load users from Supabase
     loadUsers()
-  }, [router])
+  }, [])
 
   const loadUsers = async () => {
     try {
@@ -58,8 +59,7 @@ export default function AdminUsersPage() {
   }
 
   const handleLogout = () => {
-    localStorage.setItem("isAdmin", "false")
-    localStorage.removeItem("adminEmail")
+    clearAdminSession()
     window.location.href = "/login"
   }
 
@@ -86,7 +86,7 @@ export default function AdminUsersPage() {
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  if (!isAdmin) {
+  if (!isPageReady) {
     return null
   }
 

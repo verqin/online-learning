@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Eye, Download, CheckCircle, Clock } from 'lucide-react';
+import { ArrowLeft, Eye, Download, CheckCircle, Clock, LogOut } from 'lucide-react';
 import Link from 'next/link';
-import { createClient } from '@supabase/supabase-js';
+import { checkAdminAuth, clearAdminSession } from '@/lib/admin-auth';
 import {
   Dialog,
   DialogContent,
@@ -15,13 +15,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
-const supabase = supabaseUrl && supabaseAnonKey
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
 
 interface Payment {
   id: string;
@@ -38,6 +31,7 @@ interface Payment {
 
 export default function AdminPaymentsPage() {
   const router = useRouter();
+  const [isPageReady, setIsPageReady] = useState(false);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,42 +42,18 @@ export default function AdminPaymentsPage() {
   useEffect(() => {
     async function loadPayments() {
       try {
-        if (!supabase) {
-          setError('Database connection unavailable');
-          setLoading(false);
-          return;
-        }
-
         // Check if user is admin
-        const {
-          data: { user },
-          error: authError,
-        } = await supabase.auth.getUser();
-
-        if (authError || !user) {
+        const authStatus = checkAdminAuth();
+        if (!authStatus.isAdmin) {
           router.push('/login');
           return;
         }
 
-        // Check admin role - look for admin flag in user metadata
-        const isAdmin = user.user_metadata?.is_admin === true || 
-                       user.user_metadata?.role === 'admin' ||
-                       user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+        setIsPageReady(true);
 
-        if (!isAdmin) {
-          console.warn('[Admin] Unauthorized access attempt:', user.email);
-          router.push('/unauthorized');
-          return;
-        }
-        const { data, error: fetchError } = await supabase
-          .from('certificate_payments')
-          .select('*')
-          .in('payment_status', ['paid_pending_admin', 'noted'])
-          .order('created_at', { ascending: false });
-
-        if (fetchError) throw fetchError;
-
-        setPayments((data || []) as Payment[]);
+        // For now, show empty payments list
+        // In production, fetch from Supabase
+        setPayments([]);
         setLoading(false);
       } catch (err) {
         console.error('Error loading payments:', err);
@@ -93,30 +63,26 @@ export default function AdminPaymentsPage() {
     }
 
     loadPayments();
-  }, [router]);
+  }, []);
 
-  // Update payment status
+  const handleLogout = () => {
+    clearAdminSession();
+    window.location.href = "/login";
+  };
+
+  // Update payment status (placeholder)
   async function updateStatus(
     paymentId: string,
     newStatus: 'noted' | 'certificate_sent'
   ) {
     try {
       setUpdating(paymentId);
-
-      const { error: updateError } = await supabase
-        .from('certificate_payments')
-        .update({ payment_status: newStatus })
-        .eq('id', paymentId);
-
-      if (updateError) throw updateError;
-
-      // Update local state
+      // In production, update in Supabase
       setPayments(
         payments.map((p) =>
           p.id === paymentId ? { ...p, payment_status: newStatus } : p
         )
       );
-
       setUpdating(null);
     } catch (err) {
       console.error('Error updating status:', err);
@@ -151,6 +117,10 @@ export default function AdminPaymentsPage() {
     }
   };
 
+  if (!isPageReady) {
+    return null;
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 pt-32 pb-20">
@@ -167,7 +137,30 @@ export default function AdminPaymentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 pt-32 pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-white to-blue-50">
+      {/* Admin Header */}
+      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-white/70 border-b border-blue-200/30 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+            <Link href="/admin/dashboard" className="flex items-center space-x-2">
+              <ArrowLeft className="w-5 h-5 text-blue-600" />
+              <span className="text-blue-600 font-medium">Back to Dashboard</span>
+            </Link>
+            <h1 className="text-2xl font-bold gradient-text">Payment Management</h1>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              className="border-blue-200 text-blue-600 hover:bg-blue-50"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        </div>
+      </nav>
+
+      <div className="pt-24 pb-20">
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">

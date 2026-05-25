@@ -54,6 +54,26 @@ export default function LoginPage() {
         localStorage.setItem("userId", data.userId || "")
         window.location.href = "/dashboard"
         return
+      } else if (data.tryLocalStorage) {
+        // Check localStorage for signup accounts
+        const userAccounts = JSON.parse(localStorage.getItem('userAccounts') || '[]')
+        const foundUser = userAccounts.find(
+          (u: any) => u.email === formData.email && u.password === formData.password
+        )
+
+        if (foundUser) {
+          // Valid account from signup
+          localStorage.setItem("isLoggedIn", "true")
+          localStorage.setItem("isAdmin", "false")
+          localStorage.setItem("userEmail", foundUser.email)
+          localStorage.setItem("userName", foundUser.fullName)
+          localStorage.setItem("userId", foundUser.id)
+          window.location.href = "/dashboard"
+          return
+        } else {
+          setError("Invalid email or password")
+          setIsLoading(false)
+        }
       } else {
         // Invalid credentials
         setError(data.error || "Invalid email or password")

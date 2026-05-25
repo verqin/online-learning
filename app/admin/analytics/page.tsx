@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ProtectedRoute } from '@/components/protected-route'
+import { checkAdminAuth, clearAdminSession } from '@/lib/admin-auth'
 import {
   Users,
   TrendingUp,
@@ -14,9 +15,12 @@ import {
   PieChart,
   ArrowLeft,
   RefreshCw,
+  LogOut,
 } from 'lucide-react'
 
 export default function AdminAnalytics() {
+  const router = useRouter()
+  const [isPageReady, setIsPageReady] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [analytics, setAnalytics] = useState({
     totalUsers: 0,
@@ -32,6 +36,14 @@ export default function AdminAnalytics() {
   })
 
   useEffect(() => {
+    // Check admin status (only once)
+    const authStatus = checkAdminAuth()
+    if (!authStatus.isAdmin) {
+      router.push("/login")
+      return
+    }
+    setIsPageReady(true)
+
     // Load analytics data
     const loadAnalytics = async () => {
       try {
@@ -110,9 +122,17 @@ export default function AdminAnalytics() {
     },
   ]
 
+  const handleLogout = () => {
+    clearAdminSession()
+    window.location.href = "/login"
+  }
+
+  if (!isPageReady) {
+    return null
+  }
+
   return (
-    <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 pt-24 pb-12">
+    <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 pt-24 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
@@ -269,6 +289,6 @@ export default function AdminAnalytics() {
           )}
         </div>
       </div>
-    </ProtectedRoute>
+    </div>
   )
 }

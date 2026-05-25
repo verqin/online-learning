@@ -56,10 +56,30 @@ export default function SignupPage() {
     // Simulate API call to create account
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
+    // Generate unique userId
+    const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+
+    // Store account data in localStorage for persistence
+    const existingAccounts = JSON.parse(localStorage.getItem('userAccounts') || '[]')
+    existingAccounts.push({
+      id: userId,
+      email: formData.email,
+      fullName: formData.fullName,
+      password: formData.password,
+      signupType: signupType || "standard",
+      schoolName: signupType === "academia" ? formData.schoolName : null,
+      mobileNumber: formData.mobileNumber,
+      country: formData.country,
+      city: formData.city,
+      joinDate: new Date().toISOString().split('T')[0],
+    })
+    localStorage.setItem('userAccounts', JSON.stringify(existingAccounts))
+
     // Automatically sign in the user by storing session
     localStorage.setItem("isLoggedIn", "true")
     localStorage.setItem("userEmail", formData.email)
     localStorage.setItem("userName", formData.fullName)
+    localStorage.setItem("userId", userId)
     localStorage.setItem("signupType", signupType || "standard")
     if (signupType === "academia" && formData.schoolName) {
       localStorage.setItem("userSchoolName", formData.schoolName)
